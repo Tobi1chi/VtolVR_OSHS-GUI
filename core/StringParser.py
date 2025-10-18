@@ -20,10 +20,13 @@ class JsonParser():
 
 
     def todict(self,json_str: str)->dict:
-
-        if json_str[0] == "{":
-            self.dict_str = json.loads(json_str)
-            return self.dict_str
+        if len(json_str) > 0 and json_str[0] == "{":
+            try:
+                self.dict_str = json.loads(json_str)
+                return self.dict_str
+            except json.JSONDecodeError:
+                print(f"JSONDecodeError: {json_str}")
+                return {}
         return {}
 
     def socket_parser(self,key:str)->str:
