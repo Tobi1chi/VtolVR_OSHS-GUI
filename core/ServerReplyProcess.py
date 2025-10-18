@@ -16,7 +16,8 @@ class ServerReplyProcess:
         self.logs.append(f"[{msg['time']:6.0f}] |{msg['name']}|: {msg['msg']}")
 
     def processListActors(self, msg):
-        self.actors = [str(u) for u in msg]
+        self.actors = [u for u in msg]
+        self.actors.sort(key=lambda x: int(x['id']))
 
     def processListPlayer(self, msg):
         self.players = [u for u in msg]

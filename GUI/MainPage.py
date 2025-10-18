@@ -118,13 +118,14 @@ class TerminalWidget(QWidget):
         self.layout.addWidget(self.input)
 
         self.input.installEventFilter(self)
-
+        
         self.socket_worker = SocketWorker()
         self.socket_worker.message_received.connect(self.onReceive)
         self.socket_worker.debug_received.connect(self.append_output)
         #self.socket_worker.message_received.connect(JsonParser.test)
         self.parser = JsonParser("Socket")
         self.dict_json = {}
+        self.auto_command = False
 
     def eventFilter(self, obj, event):
         if obj == self.input and event.type() == event.Type.KeyPress:
@@ -140,7 +141,10 @@ class TerminalWidget(QWidget):
     def onReceive(self, text:str):
         self.dict_json = self.parser.todict(text)
         if self.dict_json != {}:
-            self.append_output(json.dumps(self.dict_json, indent=4, ensure_ascii=False))
+            if self.auto_command and self.dict_json['type'] == 'r':
+                self.auto_command = False
+            else:
+                self.append_output(json.dumps(self.dict_json, indent=4, ensure_ascii=False))
             serverReplyProcess.process(self.dict_json)
     
     def append_output(self, text):
@@ -149,9 +153,14 @@ class TerminalWidget(QWidget):
     def connect_to_server(self):
         self.socket_worker.connect_socket()
 
-    def send_command_api(self, command:str):
+    def send_command_api(self, command:str, auto=False):
+        # Avoid repeated auto command
+        if auto and self.auto_command:
+            return
+        self.auto_command = auto
         self.socket_worker.send_command(command)
-        self.output.append(f"> {command}")
+        if not auto:
+            self.output.append(f"> {command}")
     
     def clear(self):
         self.output.clear()
@@ -280,11 +289,11 @@ class DashboardWidget(QWidget):
         elif mode == "Player List":
             content = "Player List\n" + "\n".join(serverReplyProcess.players)
             if terminalAvail:
-                terminal.send_command_api("player")
+                terminal.send_command_api("player", auto=True)
         elif mode == "Actor List":
-            content = "Actor List\n" + "\n".join(serverReplyProcess.actors)
+            content = "Actor List\n" + "\n".join([str(u) for u in serverReplyProcess.actors])
             if terminalAvail:
-                terminal.send_command_api("list")
+                terminal.send_command_api("list", auto=True)
         elif mode == "Flight Logs":
             content = "Flight Logs\n" + "\n".join(serverReplyProcess.logs)
         else:
@@ -292,5 +301,7 @@ class DashboardWidget(QWidget):
 
         # Replace tabs with spaces for consistent display
         content = content.replace("\t", "    ")
+        scrollbarpos = self.display_area.verticalScrollBar().value()
         self.display_area.setText(content)
+        self.display_area.verticalScrollBar().setValue(scrollbarpos)
 
