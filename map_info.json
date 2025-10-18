@@ -1,0 +1,2951 @@
+{
+  "by_wsid": {
+    "2722787658": {
+      "package_name": "HZ COOP Missions",
+      "maps": [
+        {
+          "map_name": "CO-08 Dock Destroyers",
+          "map_id": "CO_08_Dock_Destroyers"
+        },
+        {
+          "map_name": "CO-08 Rig Hunters",
+          "map_id": "CO_08_RigHunter"
+        },
+        {
+          "map_name": "CO-08 Overwatch",
+          "map_id": "CO-08_Overwatch"
+        },
+        {
+          "map_name": "CO-08 Land War (BROKEN CURRENTLY)",
+          "map_id": "CO_08_Land_War"
+        },
+        {
+          "map_name": "CO-08 Land War 2 (BETA)",
+          "map_id": "CO_08_Land_War2"
+        }
+      ]
+    },
+    "2777976102": {
+      "package_name": "Fast BVR Map Pack 1",
+      "maps": [
+        {
+          "map_name": "Fast BVR Wastelands",
+          "map_id": "BVR Wastelands"
+        },
+        {
+          "map_name": "Fast BVR Kemano",
+          "map_id": "BVR Kemano"
+        },
+        {
+          "map_name": "Fast BVR Ocean",
+          "map_id": "BVR Water"
+        },
+        {
+          "map_name": "Fast BVR Arctic Islands",
+          "map_id": "BVR Artic"
+        },
+        {
+          "map_name": "Fast BVR Wastelands No AIRS-T",
+          "map_id": "Wasteland NO AIRST"
+        },
+        {
+          "map_name": "Fast BVR Kemano No AIRS-T",
+          "map_id": "Kemano AIM120"
+        },
+        {
+          "map_name": "Fast BVR Ocean No AIRS-T",
+          "map_id": "Water Radar"
+        },
+        {
+          "map_name": "Fast BVR Arctic Island No AIRS-T",
+          "map_id": "Arctic Radar"
+        },
+        {
+          "map_name": "Fast BVR Wastelands FA26B Only",
+          "map_id": "BVR Wastelands FA26 Only"
+        },
+        {
+          "map_name": "Fast BVR Wastelands FA26B No AIRS-T",
+          "map_id": "Wastelands FA26 AIRST"
+        },
+        {
+          "map_name": "Fast BVR Kemano FA26B Only",
+          "map_id": "BVR Kemano FA26 Only"
+        },
+        {
+          "map_name": "Fast BVR Kemano FA26B No AIRS-T",
+          "map_id": "Kemano FA26 AIRST"
+        },
+        {
+          "map_name": "Fast BVR Ocean FA26B Only",
+          "map_id": "BVR Water FA26 Only"
+        },
+        {
+          "map_name": "Fast BVR Ocean FA26B No AIRS-T",
+          "map_id": "Water FA26 AIRST"
+        },
+        {
+          "map_name": "Fast BVR Arctic Islands FA26B Only",
+          "map_id": "BVR Arctic FA26 Only"
+        },
+        {
+          "map_name": "Fast BVR Arctic FA26B No AIRS-T",
+          "map_id": "Arctic FA26 AIRST"
+        },
+        {
+          "map_name": "Fast BVR Wastelands F45 Only",
+          "map_id": "BVR Wastelands F45 Only"
+        },
+        {
+          "map_name": "Fast BVR Kemano F45 Only",
+          "map_id": "BVR Kemano F45 Only"
+        },
+        {
+          "map_name": "Fast BVR Ocean F45 Only",
+          "map_id": "BVR Water F45 Only"
+        },
+        {
+          "map_name": "Fast BVR Arctic Islands F45 Only",
+          "map_id": "BVR Arctic F45 Only"
+        },
+        {
+          "map_name": "Fast BVR Wastelands BOTS",
+          "map_id": "BVR Wastelands bots"
+        },
+        {
+          "map_name": "Fast BVR Arctic Islands Bots",
+          "map_id": "BVR Arctic bots"
+        },
+        {
+          "map_name": "Fast BVR Wastelands T55 Only",
+          "map_id": "BVR Wastelands T55"
+        }
+      ]
+    },
+    "2785198049": {
+      "package_name": "Dynamic Liberation",
+      "maps": [
+        {
+          "map_name": "Dynamic Liberation Quick",
+          "map_id": "Dynamic_Liberation_Q_N"
+        },
+        {
+          "map_name": "Dynamic Liberation Full",
+          "map_id": "Dynamic_Liberation_F_N"
+        },
+        {
+          "map_name": "Dynamic Liberation Quick (Low Intensity)",
+          "map_id": "Dynamic_Liberation_Q_L"
+        },
+        {
+          "map_name": "Dynamic Liberation Full (Low Intensity)",
+          "map_id": "Dynamic_Liberation_F_L"
+        },
+        {
+          "map_name": "Dynamic Liberation Quick (High Intensity)",
+          "map_id": "Dynamic_Liberation_Q_H"
+        },
+        {
+          "map_name": "Dynamic Liberation Full (High Intensity)",
+          "map_id": "Dynamic_Liberation_F_H"
+        },
+        {
+          "map_name": "Dynamic Liberation Quick High Tech",
+          "map_id": "Dynamic_Liberation_Q_HT"
+        },
+        {
+          "map_name": "Dynamic Liberation Full High Tech",
+          "map_id": "Dynamic_Liberation_F_HT"
+        },
+        {
+          "map_name": "Dynamic Liberation Oops All EF-24G",
+          "map_id": "Dynamic_Liberation_EF24"
+        },
+        {
+          "map_name": "Dynamic Liberation Shazmode (AH-94/AV-42)",
+          "map_id": "Dynamic_Liberation_Shaz"
+        }
+      ]
+    },
+    "2793240536": {
+      "package_name": "War Against Isis",
+      "maps": [
+        {
+          "map_name": "Iraqs war against Islamic State",
+          "map_id": "The Battle of Mosul معركة المو"
+        }
+      ]
+    },
+    "2793585682": {
+      "package_name": "Battlefield 3 coop v2",
+      "maps": [
+        {
+          "map_name": "Going Hunting (BF3) coop",
+          "map_id": "Battlefield 3 Cooperative"
+        }
+      ]
+    },
+    "2794151653": {
+      "package_name": "Nochal's Dynamic",
+      "maps": [
+        {
+          "map_name": "Nochal's Dynamic",
+          "map_id": "nochal_dynamic_1"
+        }
+      ]
+    },
+    "2794711705": {
+      "package_name": "The TaskForce",
+      "maps": [
+        {
+          "map_name": "Carrier StrikeGroup",
+          "map_id": "So_it_begins"
+        }
+      ]
+    },
+    "2795203123": {
+      "package_name": "AH-94 City Missions",
+      "maps": [
+        {
+          "map_name": "Port attack",
+          "map_id": "Flashpoint"
+        },
+        {
+          "map_name": "Town Cache",
+          "map_id": "City CQB"
+        },
+        {
+          "map_name": "City Attack",
+          "map_id": "big city"
+        },
+        {
+          "map_name": "VERY TEMP (not close to being done)",
+          "map_id": "night city"
+        },
+        {
+          "map_name": "Night Traitor",
+          "map_id": "2 Heli event"
+        }
+      ]
+    },
+    "2795546772": {
+      "package_name": "Thunderdome Deathmatch Map",
+      "maps": [
+        {
+          "map_name": "The Thunderdome Deathmatch Arena 100pts",
+          "map_id": "thunderdome 8v8"
+        },
+        {
+          "map_name": "The Thunderdome Infinity Hydras AH-94",
+          "map_id": "thunderdome hydras infinite"
+        },
+        {
+          "map_name": "The Thunderdome Free-Flight",
+          "map_id": "thunderdome free-flight"
+        },
+        {
+          "map_name": "The Thunderdome Hydras AH-94 Deathmatch",
+          "map_id": "thunderdome hydras cwis"
+        },
+        {
+          "map_name": "The Thunderdome GBUs AH-94 Deathmatch",
+          "map_id": "thunderdome gbu"
+        },
+        {
+          "map_name": "The Thunderdome Hydras Deathmatch 100pts",
+          "map_id": "thunderdome hydras"
+        },
+        {
+          "map_name": "SpaghettiDome Hydras AH-94",
+          "map_id": "SpaghettiDome Hydras"
+        },
+        {
+          "map_name": "CursedPillars AH-94 Arena (Hydras)",
+          "map_id": "cursedPillars Hydras"
+        }
+      ]
+    },
+    "2801064169": {
+      "package_name": "Fatal Skies: SoD",
+      "maps": [
+        {
+          "map_name": "[FS-00] READ ME (info only)",
+          "map_id": "00 - READ ME (info only)"
+        },
+        {
+          "map_name": "[FS-01] Lawless Seas",
+          "map_id": "01 - Lawless Seas"
+        },
+        {
+          "map_name": "[FS-02] Enemy of my Enemy",
+          "map_id": "02 - Enemy of my Enemy"
+        },
+        {
+          "map_name": "[FS-03] Return to Sender",
+          "map_id": "03 - Return to Sender"
+        },
+        {
+          "map_name": "[FS-04] Midnight Strike",
+          "map_id": "04 - Midnight Strike"
+        },
+        {
+          "map_name": "[FS-05] Hornet's Nest",
+          "map_id": "05 - Hornet's Nest"
+        },
+        {
+          "map_name": "[FS-06] Breach of Contract",
+          "map_id": "06 - Breach of Contract"
+        },
+        {
+          "map_name": "[FS-07] Wanted",
+          "map_id": "07 - Wanted"
+        },
+        {
+          "map_name": "[FS-08] Diplomatic Immunity",
+          "map_id": "08 - Diplomatic Immunity"
+        },
+        {
+          "map_name": "[FS-09] Repossession",
+          "map_id": "09 - Repossession"
+        },
+        {
+          "map_name": "[FS-10] Sword & Shield",
+          "map_id": "10 - Sword & Shield"
+        },
+        {
+          "map_name": "[FS-EM] (H)Ydra Liberation",
+          "map_id": "EM - (H)Ydra Liberation"
+        },
+        {
+          "map_name": "[FS-EM] Hydra Free Flight",
+          "map_id": "EM - Hydra Practice"
+        },
+        {
+          "map_name": "[FS-EM] Bottom Gun: Reserves",
+          "map_id": "EM - Bottom Gun"
+        },
+        {
+          "map_name": "[FS-EM] Formula Launch: Avalon Circuit",
+          "map_id": "EM - Formula Launch"
+        }
+      ]
+    },
+    "2807616787": {
+      "package_name": "AH-94: Joint Operations",
+      "maps": [
+        {
+          "map_name": "[WIP] Weapons Training / Free Flight",
+          "map_id": "Training"
+        },
+        {
+          "map_name": "AH-94 Ops: Tidal Wave",
+          "map_id": "WELCOME TO KHOST (2)"
+        },
+        {
+          "map_name": "AH-94 Ops: Interdiction",
+          "map_id": "Operation Interdiction Pt.1"
+        },
+        {
+          "map_name": "AH-94 Ops: Interdiction II",
+          "map_id": "Operation Interdiction Pt.2"
+        },
+        {
+          "map_name": "[NOT PLAYABLE] OPENWORLD.DYNAMIC",
+          "map_id": "OPENWORLD.DYNAMIC"
+        }
+      ]
+    },
+    "2809129213": {
+      "package_name": "Fast BVR Map Pack 2",
+      "maps": [
+        {
+          "map_name": "Fast BVR Sagarmatha",
+          "map_id": "Fast BVR Everest"
+        },
+        {
+          "map_name": "Fast BVR DMZ",
+          "map_id": "Fast BVR DMZ"
+        },
+        {
+          "map_name": "Fast BVR Sandstorm",
+          "map_id": "Fast BVR Sahara"
+        },
+        {
+          "map_name": "Fast BVR Island Hopper",
+          "map_id": "Fast BVR Island Hopper"
+        },
+        {
+          "map_name": "Fast BVR Sagarmatha No AIRS-T",
+          "map_id": "Sagarmatha No AIRST"
+        },
+        {
+          "map_name": "Fast BVR DMZ No AIRS-T",
+          "map_id": "DMZ No AIRST"
+        },
+        {
+          "map_name": "Fast BVR Sandstorm No AIRS-T",
+          "map_id": "Sahara No AIRST"
+        },
+        {
+          "map_name": "Fast BVR Island Hopper No AIRS-T",
+          "map_id": "Islandhop No AIRST"
+        },
+        {
+          "map_name": "Fast BVR Sagarmatha FA26B Only",
+          "map_id": "Sagarmatha FA26"
+        },
+        {
+          "map_name": "Fast BVR Sagarmatha FA26B No AIRS-T",
+          "map_id": "Sagarmath FA26 AIRST"
+        },
+        {
+          "map_name": "Fast BVR DMZ FA26B Only",
+          "map_id": "DMZ FA26"
+        },
+        {
+          "map_name": "Fast BVR DMZ FA26B No AIRS-T",
+          "map_id": "DMZ FA26 AIRST"
+        },
+        {
+          "map_name": "Fast BVR Sandstorm FA26B Only",
+          "map_id": "Sandstorm FA26"
+        },
+        {
+          "map_name": "Fast BVR Sandstorm FA26B No AIRS-T",
+          "map_id": "Sandstorm FA26 AIRST"
+        },
+        {
+          "map_name": "Fast BVR Island Hopper FA26B Only",
+          "map_id": "Islandhop FA26"
+        },
+        {
+          "map_name": "Fast BVR Island FA26B No AIRS-T",
+          "map_id": "Island FA26 AIRST"
+        },
+        {
+          "map_name": "Fast BVR Sagarmatha F45 Only",
+          "map_id": "Sagarmatha F45"
+        },
+        {
+          "map_name": "Fast BVR DMZ F45 Only",
+          "map_id": "DMZ F45"
+        },
+        {
+          "map_name": "Fast BVR Sandstorm F45 Only",
+          "map_id": "Sandstorm F45"
+        },
+        {
+          "map_name": "Fast BVR Island Hopper F45 Only",
+          "map_id": "Islandhop F45"
+        }
+      ]
+    },
+    "2834025119": {
+      "package_name": "Practice",
+      "maps": [
+        {
+          "map_name": "Carrier Practice",
+          "map_id": "CarrierP"
+        },
+        {
+          "map_name": "Airbase Practice",
+          "map_id": "Airbase"
+        },
+        {
+          "map_name": "St. Peter's Training Center",
+          "map_id": "St.Peter'sTraining"
+        }
+      ]
+    },
+    "2836261265": {
+      "package_name": "BVR PVP",
+      "maps": [
+        {
+          "map_name": "FA-26 PVP BVR WITH AWACS",
+          "map_id": "FA-26B BVR PVP"
+        },
+        {
+          "map_name": "FA-26 PVP BVR, AWACS, NO AIRS-Ts",
+          "map_id": "FA-26B BVR PVP NO AIRS-T"
+        },
+        {
+          "map_name": "FA-26 PVP BVR, NO AWACS",
+          "map_id": "FA-26B BVR PVP NO AWACS"
+        },
+        {
+          "map_name": "FA-26 PVP BVR, NO AWACS, NO AIRS-T",
+          "map_id": "FA-26B BVR PVP NO AWACS AIRS-T"
+        },
+        {
+          "map_name": "F26 BVR over Whistler BC",
+          "map_id": "F26 BVR WHISTLER IN AIR LAUNCH"
+        },
+        {
+          "map_name": "F26 Only PVP strike mission BETA",
+          "map_id": "F26 PVP STRIKE MISSON"
+        },
+        {
+          "map_name": "FA-26 PVP BVR DESTROY THE BUNKER *BETA*",
+          "map_id": "F26 BVR DESTROY THE BUNKER"
+        },
+        {
+          "map_name": "T-55 BVR over Whistler BC",
+          "map_id": "T-55 BVR Whistler air start"
+        },
+        {
+          "map_name": "T-55 PVP BVR, NO AWACS, NO AIRS-T",
+          "map_id": "T55 BVR PVP NO AIRS-T NO AWACS"
+        },
+        {
+          "map_name": "T55 BVR over the Andes",
+          "map_id": "T55 BVR over the Andes"
+        }
+      ]
+    },
+    "2846809035": {
+      "package_name": "Syria Helicopter Coop",
+      "maps": [
+        {
+          "map_name": "Russian Helicopter COOP Syria",
+          "map_id": "Syria Russian Helicopter COOP"
+        }
+      ]
+    },
+    "2852026728": {
+      "package_name": "topgun:maverick",
+      "maps": [
+        {
+          "map_name": "topgun:maverick",
+          "map_id": "topgun2"
+        }
+      ]
+    },
+    "2852088319": {
+      "package_name": "1V1 F-26 ",
+      "maps": [
+        {
+          "map_name": "1V1 f-26",
+          "map_id": "1V1 f-26"
+        },
+        {
+          "map_name": "2V2 f-26",
+          "map_id": "2V2 f-26"
+        },
+        {
+          "map_name": "F-26 3V1",
+          "map_id": "1V3 F-26"
+        },
+        {
+          "map_name": "1V1 F-26 + AI",
+          "map_id": "1V1 + AI"
+        },
+        {
+          "map_name": "1V1 F-45 vs F-26",
+          "map_id": "1V1 F45 vs F-26"
+        },
+        {
+          "map_name": "3V3 F-26",
+          "map_id": "3V3 F-26"
+        }
+      ]
+    },
+    "2854841776": {
+      "package_name": "Progressive CAS",
+      "maps": [
+        {
+          "map_name": "Progressive CAS - AH-94",
+          "map_id": "Progressive CAS - AH-94"
+        },
+        {
+          "map_name": "Progressive CAS - Mixed Wing",
+          "map_id": "Progressive CAS - Mixed Wing"
+        }
+      ]
+    },
+    "2860956181": {
+      "package_name": "Headless Server",
+      "maps": [
+        {
+          "map_name": "BVR afMtnsHills",
+          "map_id": "BVR afMtnsHills"
+        },
+        {
+          "map_name": "BVR Archipel",
+          "map_id": "BVR Archipel"
+        },
+        {
+          "map_name": "BVR Crack",
+          "map_id": "BVR Crack"
+        },
+        {
+          "map_name": "BVR Dnalreztiws",
+          "map_id": "BVR Dnalreztiws"
+        },
+        {
+          "map_name": "BVR Ethi5",
+          "map_id": "BVR Ethi5"
+        },
+        {
+          "map_name": "BVR Fyord2",
+          "map_id": "BVR Fyord2"
+        },
+        {
+          "map_name": "BVR George",
+          "map_id": "BVR George"
+        },
+        {
+          "map_name": "BVR hMap2",
+          "map_id": "BVR hMap2"
+        },
+        {
+          "map_name": "BVR Ocixem",
+          "map_id": "BVR Ocixem"
+        },
+        {
+          "map_name": "BVR Pillars",
+          "map_id": "BVR Pillars"
+        },
+        {
+          "map_name": "BVR Tepui",
+          "map_id": "BVR Tepui"
+        },
+        {
+          "map_name": "BVR MtnLakes",
+          "map_id": "BVR MtnLakes"
+        }
+      ]
+    },
+    "2866000584": {
+      "package_name": "A2A BVR PVP (FA-26 Only)",
+      "maps": [
+        {
+          "map_name": "FA26 BVR PVP",
+          "map_id": "FA26BVRPVP"
+        }
+      ]
+    },
+    "2870702500": {
+      "package_name": "Open World Combat V2",
+      "maps": [
+        {
+          "map_name": "Open World Combat V2 (PvE, Standard)",
+          "map_id": "Standard Dynamic"
+        },
+        {
+          "map_name": "Open World Combat V2 (PvE, Casual)",
+          "map_id": "Casual-Dynamic"
+        },
+        {
+          "map_name": "Open World Combat V2 (PvP, 3-Base)",
+          "map_id": "PvP Domination"
+        },
+        {
+          "map_name": "Open World Combat V2 (PvP, Takeover)",
+          "map_id": "PvP Full Assault"
+        },
+        {
+          "map_name": "Open World Combat V2 (Target Practice)",
+          "map_id": "Target Practice"
+        }
+      ]
+    },
+    "2871110672": {
+      "package_name": "N64 Racing Maps",
+      "maps": [
+        {
+          "map_name": "Podrace - Boonta Eve Classic",
+          "map_id": "Podrace - Boonta Eve Classic"
+        },
+        {
+          "map_name": "Podrace - Beedo's Wild Ride - Ando Prime",
+          "map_id": "Podrace - Beedo's Wild Ride"
+        },
+        {
+          "map_name": "Podrace - Mon Gazza Speedway",
+          "map_id": "Podrace - Mon Gazza Speedway"
+        },
+        {
+          "map_name": "WaveRace - Hydro Thunder",
+          "map_id": "Racing - Hydro Thunder"
+        },
+        {
+          "map_name": "Mario Kart - Rainbow Road",
+          "map_id": "Mario Kart - Rainbow Road"
+        },
+        {
+          "map_name": "Mario Kart - T55 Bowsers Castle",
+          "map_id": "Mario Kart -T55 Bowsers Castle"
+        },
+        {
+          "map_name": "Mario Kart - EF24 Bowsers Castle",
+          "map_id": "Mario Kart-EF24 Bowsers Castle"
+        },
+        {
+          "map_name": "DK Racing AV42 - Spaceport Alpha",
+          "map_id": "DK Racing AV42-Spaceport Alpha"
+        },
+        {
+          "map_name": "DK Racing AH94 - Spaceport Alpha",
+          "map_id": "DK Racing AH94-Spaceport Alpha"
+        },
+        {
+          "map_name": "EF24 Snowboarding",
+          "map_id": "EF24 Racing - Snowboarding"
+        }
+      ]
+    },
+    "2877727873": {
+      "package_name": "Kriegers PVP+ Pack",
+      "maps": [
+        {
+          "map_name": "A2A BVR Combat",
+          "map_id": "default_BVR_no_AIRS"
+        },
+        {
+          "map_name": "A2A BVR Combat (EF-24G)",
+          "map_id": "default_BVR_no_AIRS_EF24"
+        },
+        {
+          "map_name": "A2A BVR Combat 16P",
+          "map_id": "BVR_more_players_no_AIRS"
+        },
+        {
+          "map_name": "T-55 A2A BVR Combat",
+          "map_id": "BVR_more_players_no_AIRS_T_55"
+        },
+        {
+          "map_name": "PVP Strike Mission",
+          "map_id": "default_PVP_strike_no_AIRS"
+        },
+        {
+          "map_name": "EF-24G PVP Strike Escort",
+          "map_id": "PVP_EF-24G_escort_strike"
+        },
+        {
+          "map_name": "PVP Strike Mission (EF-24G)",
+          "map_id": "default_PVP_stike_no_AIRS_EF24"
+        },
+        {
+          "map_name": "PVP Strike Mission (EF-24G Edit)",
+          "map_id": "PVP_strike_EF24_edit"
+        },
+        {
+          "map_name": "PVP Strike Mission KE",
+          "map_id": "PVP_strike_mission_krieger_edt"
+        },
+        {
+          "map_name": "T-55 PVP Strike Mission",
+          "map_id": "default_PVP_strike_no_AIRS_55"
+        },
+        {
+          "map_name": "A2A BVR COMBAT HILLS",
+          "map_id": "hills_BVR_no_AIRS"
+        },
+        {
+          "map_name": "T-55 PVP BVR Hills",
+          "map_id": "T_55_BVR_MTN_HILLS"
+        },
+        {
+          "map_name": "T-55 Low Tech PVP BVR Hills",
+          "map_id": "T_55_LOW_TEC_BVR_MTN_HILLS"
+        },
+        {
+          "map_name": "T-55 Dogfight (Guns Only)",
+          "map_id": "T_55_BFM"
+        },
+        {
+          "map_name": "T-55 1V1 Dogfight (Guns Only)",
+          "map_id": "T_55_1V1_BFM"
+        },
+        {
+          "map_name": "Dogfight (Guns Only) EF-24G",
+          "map_id": "EF_24G_dogfight_Guns_Only"
+        },
+        {
+          "map_name": "Dogfight (Guns Only) EF-24G vs F/A-26B",
+          "map_id": "EF24vsFA26_dogfight_guns"
+        },
+        {
+          "map_name": "Dogfight (Guns Only) F-45A",
+          "map_id": "45_dogfight_guns_only"
+        },
+        {
+          "map_name": "Dogfight Guns'n'Heaters F-45A",
+          "map_id": "45_dogfight_heaters"
+        },
+        {
+          "map_name": "F/A-26B Dogfight 16P (Guns Only)",
+          "map_id": "26_big_dogfight_guns_only"
+        },
+        {
+          "map_name": "Dogfight Guns'n'Heaters 16P",
+          "map_id": "26_big_dogfight_gun_and_heater"
+        },
+        {
+          "map_name": "Dogfight (Guns Only) F-45A VS F/A-26B",
+          "map_id": "45v26_dogfight_guns_only_UNI"
+        },
+        {
+          "map_name": "Dogfight Guns'n'Heaters F-45A VS F/A-26B",
+          "map_id": "45v26_dogfight_heaters_UNI"
+        },
+        {
+          "map_name": "F/A-26B and F-45A (Mixed Team Guns Only)",
+          "map_id": "45a26_dogfight_guns_only_MIX"
+        },
+        {
+          "map_name": "F/A-26B and F-45A (All weapons dogfight)",
+          "map_id": "45a26_dogfight_allweapon_MIX"
+        },
+        {
+          "map_name": "A2A BVR Combat 6v6 with HC",
+          "map_id": "6v6_BVR_no_AIRS_with_HC"
+        },
+        {
+          "map_name": "A2A BVR Combat 6v6 with HC 26 only",
+          "map_id": "26_only_6v6_no_AIRS_with_HC"
+        },
+        {
+          "map_name": "Refueling practice",
+          "map_id": "refueling_practice_krieger"
+        },
+        {
+          "map_name": "T-55 A2A BVR 1V1 Tournament Edition",
+          "map_id": "Tournament_T-55_BVR_1V1"
+        },
+        {
+          "map_name": "T-55 and F/A-26B Dogfight (Guns Only)",
+          "map_id": "T_55_+_FA26B_BFM"
+        }
+      ]
+    },
+    "2896477023": {
+      "package_name": "AH-94 Multiplayer Missions",
+      "maps": [
+        {
+          "map_name": "AH-94 Mission - Base Raiders",
+          "map_id": "Base Raiders"
+        }
+      ]
+    },
+    "2911577692": {
+      "package_name": "Dope's Unlimited",
+      "maps": [
+        {
+          "map_name": "Coastal Combat Air Patrol",
+          "map_id": "Boreal Combat Air Patrol"
+        },
+        {
+          "map_name": "Coastal Combat Air Patrol",
+          "map_id": "Boreal CAP (Unlimited Fuel)"
+        },
+        {
+          "map_name": "Weather/Time Cycling Desert FreeFlight",
+          "map_id": "Dope's HD Desert Freeflight"
+        },
+        {
+          "map_name": "Arctic PVE CQC (Seekers,Guns,Jammers)",
+          "map_id": "Arctic PVEQCQ Guns and Seekers"
+        },
+        {
+          "map_name": "Weather/Wind/Day Cycling FreeFlight",
+          "map_id": "Chill HD Borean Freeflight"
+        }
+      ]
+    },
+    "2913932449": {
+      "package_name": "Cooperative Missions",
+      "maps": [
+        {
+          "map_name": "Attack/Liberate/Rescue",
+          "map_id": "Cooperative Multi-Wing"
+        },
+        {
+          "map_name": "EASY Attack/Liberate/Rescue",
+          "map_id": "Easy Cooperative Muilti-Wing"
+        }
+      ]
+    },
+    "2928362205": {
+      "package_name": "1v1 all aicraft",
+      "maps": [
+        {
+          "map_name": "All aircraft 1v1",
+          "map_id": "1v1 (f45)"
+        },
+        {
+          "map_name": "1v1 AH-94 (infinite ammo)",
+          "map_id": "1v1 (infinite ammo)"
+        }
+      ]
+    },
+    "2939726351": {
+      "package_name": "Ace Combat 04 Campaign",
+      "maps": [
+        {
+          "map_name": "[AC04 #01] Sitting Duck",
+          "map_id": "sittingduck"
+        },
+        {
+          "map_name": "[AC04 #02] Imminent Threat",
+          "map_id": "imminentthreat"
+        },
+        {
+          "map_name": "[AC04 #03] The Northern Eye",
+          "map_id": "the northern eye"
+        },
+        {
+          "map_name": "[AC04 #04] Blockade",
+          "map_id": "blockade"
+        },
+        {
+          "map_name": "[AC04 #05] Lifeline",
+          "map_id": "lifeline"
+        },
+        {
+          "map_name": "[AC04 #06] Invincible Fleet",
+          "map_id": "invincible fleet copy"
+        },
+        {
+          "map_name": "[AC04 #07] Deep Strike",
+          "map_id": "deepstrike"
+        },
+        {
+          "map_name": "[AC04 #08] Shattered Skies",
+          "map_id": "shatteredskies"
+        },
+        {
+          "map_name": "[AC04 #09] Operation Bunker Shot",
+          "map_id": "OperationBunkerShot"
+        },
+        {
+          "map_name": "[AC04 #10] Tango Line",
+          "map_id": "tangoline"
+        },
+        {
+          "map_name": "[AC04 #11] Escort",
+          "map_id": "escort"
+        },
+        {
+          "map_name": "[AC04 #12] Stonehenge Offensive",
+          "map_id": "stonehengeoffensive"
+        },
+        {
+          "map_name": "[AC04 #13] Safe Return",
+          "map_id": "safereturn"
+        },
+        {
+          "map_name": "[AC04 #14] Breaking Arrows",
+          "map_id": "BreakingArrows"
+        },
+        {
+          "map_name": "[AC04 #15] Emancipation",
+          "map_id": "emancipation"
+        },
+        {
+          "map_name": "[AC04 #16] Whiskey Corridor",
+          "map_id": "WhiskeyCorridor"
+        },
+        {
+          "map_name": "[AC04 #17] Siege of Farbanti",
+          "map_id": "SiegeOfFarbanti"
+        },
+        {
+          "map_name": "[AC04 #18] Megalith",
+          "map_id": "Megalith"
+        }
+      ]
+    },
+    "2942335115": {
+      "package_name": "Missile Evasion Training",
+      "maps": [
+        {
+          "map_name": "Missile evasion Training",
+          "map_id": "Missile Evasion training"
+        }
+      ]
+    },
+    "2951925871": {
+      "package_name": "T-55 PvP Pack",
+      "maps": [
+        {
+          "map_name": "T-55 BVR PvP",
+          "map_id": "T-55 BVR PvP"
+        },
+        {
+          "map_name": "T-55 BVR PvP Low Tech",
+          "map_id": "BVR PvP Low Tech"
+        },
+        {
+          "map_name": "T-55 Lunar BVR PvP",
+          "map_id": "T-55 Lunar BVR PvP"
+        },
+        {
+          "map_name": "T-55 Lunar BVR PvP Low Tech",
+          "map_id": "T-55 Lunar BVR PvP Low Tech"
+        },
+        {
+          "map_name": "T-55 PvP Strike Mission",
+          "map_id": "T-55 PvP Strike Mission"
+        },
+        {
+          "map_name": "T-55 PvP Strike Mission Low Tech",
+          "map_id": "T-55 PvP Strike Mission Lo-Tec"
+        },
+        {
+          "map_name": "T-55 PvP Lunar Strike Mission",
+          "map_id": "T-55 PvP Lunar Strike"
+        },
+        {
+          "map_name": "T-55 PvP Lunar Strike Mission Low-Tech",
+          "map_id": "T-55 Lunar Strike Low-Tech"
+        },
+        {
+          "map_name": "T-55 PvP Alien Pillars Guns Only",
+          "map_id": "T-55 Alien Pillars Guns Only"
+        },
+        {
+          "map_name": "T-55 PvP Alien Pillars Guns 'n Heaters",
+          "map_id": "T-55 pillars guns and heaters"
+        },
+        {
+          "map_name": "Complete Player Training T-55 (NOT PvP)",
+          "map_id": "T-55 Weapon Systems Training"
+        }
+      ]
+    },
+    "2953597609": {
+      "package_name": "MP Op:Desert Cobra",
+      "maps": [
+        {
+          "map_name": "Base Defense",
+          "map_id": "mission1"
+        },
+        {
+          "map_name": "Retaliation",
+          "map_id": "mission2"
+        },
+        {
+          "map_name": "Strike on Naval Test Lake",
+          "map_id": "mission3"
+        },
+        {
+          "map_name": "Tanker Escort",
+          "map_id": "mission4"
+        },
+        {
+          "map_name": "Departure",
+          "map_id": "mission5"
+        },
+        {
+          "map_name": "Northern Assault",
+          "map_id": "mission6"
+        },
+        {
+          "map_name": "Striking Oil",
+          "map_id": "mission7"
+        },
+        {
+          "map_name": "Decapitation",
+          "map_id": "mission8"
+        }
+      ]
+    },
+    "2955336982": {
+      "package_name": "AH-94 Seek & Destroy COOP",
+      "maps": [
+        {
+          "map_name": "AH-94 Seek & Destroy Mountain Ops",
+          "map_id": "AH-94 Seek & Destroy x2 FA-26B"
+        },
+        {
+          "map_name": "AH-94 Seek And Destroy Desert Ops",
+          "map_id": "AH-94 Seek and Destroy Africa"
+        }
+      ]
+    },
+    "2963067991": {
+      "package_name": "AH-94 Island Takeover",
+      "maps": [
+        {
+          "map_name": "AH-94 Island Takeover",
+          "map_id": "mission1"
+        }
+      ]
+    },
+    "2969777096": {
+      "package_name": "Dynamic Island Takeover",
+      "maps": [
+        {
+          "map_name": "Dynamic Island Takeover [AH-94]",
+          "map_id": "dynislandtakeover"
+        },
+        {
+          "map_name": "Dynamic Island Takeover [PT Wind]",
+          "map_id": "dynislandtakeoverwind"
+        }
+      ]
+    },
+    "2980002435": {
+      "package_name": "BVR Pro for f26+t55",
+      "maps": [
+        {
+          "map_name": "BVR Pro no AIRS-T 8vs8 F26+t55",
+          "map_id": "BVR 8v8 No Airs-t"
+        },
+        {
+          "map_name": "BVR T55 only no AIRS-T 8vs8",
+          "map_id": "BVR T55 only no AIRS-T 8vs8"
+        },
+        {
+          "map_name": "Fast BVR T55 only no AIRS-T 8vs8",
+          "map_id": "Fast BVR T55 only no AIRST 8V8"
+        },
+        {
+          "map_name": "BVR Pro no AIRS-T 8vs8 F26 only",
+          "map_id": "BVR F26 only 8v8 no AIRST"
+        },
+        {
+          "map_name": "BVR for match f26 only",
+          "map_id": "f26 BVR for match"
+        },
+        {
+          "map_name": "Fast BVR f26 only no AIRS-T 8vs8",
+          "map_id": "fast bvr f26 no airst"
+        },
+        {
+          "map_name": "Fast BVR f26 2v2",
+          "map_id": "f26 2v2"
+        }
+      ]
+    },
+    "2985527829": {
+      "package_name": "Desert Assault",
+      "maps": [
+        {
+          "map_name": "Desert Assault (1-4)",
+          "map_id": "Desert Assault"
+        },
+        {
+          "map_name": "Desert Assault (4-9)",
+          "map_id": "Desert Assault (hard)"
+        }
+      ]
+    },
+    "2991081634": {
+      "package_name": "BVR Pro for f26+t55",
+      "maps": [
+        {
+          "map_name": "BVR Pro no AIRS-T 8vs8 F26+t55",
+          "map_id": "BVR 8v8 No Airs-t"
+        },
+        {
+          "map_name": "BVR T55 only no AIRS-T 8vs8",
+          "map_id": "BVR T55 only no AIRS-T 8vs8"
+        },
+        {
+          "map_name": "Fast BVR T55+F26 no AIRS-T 8vs8",
+          "map_id": "Fast BVR T55 only no AIRST 8V8"
+        },
+        {
+          "map_name": "BVR Pro no AIRS-T 8vs8 F26 only",
+          "map_id": "BVR F26 only 8v8 no AIRST"
+        },
+        {
+          "map_name": "BVR for match f26 only",
+          "map_id": "f26 BVR for match"
+        },
+        {
+          "map_name": "Fast BVR f26 only no AIRS-T 8vs8",
+          "map_id": "fast bvr f26 no airst"
+        },
+        {
+          "map_name": "Fast BVR f26 only 2v2",
+          "map_id": "f26 2v2"
+        },
+        {
+          "map_name": "BVR Pro with great wind no AIRS-T",
+          "map_id": "BVR Pro with great wind no AIR"
+        }
+      ]
+    },
+    "2993385956": {
+      "package_name": "清理蛀虫",
+      "maps": [
+        {
+          "map_name": "站稳脚跟",
+          "map_id": "1"
+        },
+        {
+          "map_name": "激烈争夺",
+          "map_id": "争夺"
+        },
+        {
+          "map_name": "测试",
+          "map_id": "3"
+        }
+      ]
+    },
+    "2995731226": {
+      "package_name": "CAW OPs",
+      "maps": [
+        {
+          "map_name": "Operation Cinderella",
+          "map_id": "Operation Cinderella"
+        },
+        {
+          "map_name": "Operation Hail Storm",
+          "map_id": "Operation Hail Storm"
+        },
+        {
+          "map_name": "Operation Queenbreaker",
+          "map_id": "Operation Queenbreaker"
+        },
+        {
+          "map_name": "Operation Lawbringer",
+          "map_id": "Operation Lawbringer"
+        },
+        {
+          "map_name": "Operation Nightcrawler",
+          "map_id": "Operation Nightcrawler"
+        },
+        {
+          "map_name": "Operation Northstar",
+          "map_id": "Operation Northstar"
+        },
+        {
+          "map_name": "Operation Steel Haze",
+          "map_id": "Operation Steel Haze"
+        },
+        {
+          "map_name": "Operation Bird's Nest",
+          "map_id": "Operation Bird's Nest"
+        },
+        {
+          "map_name": "Operation Blue Moon",
+          "map_id": "Operation Blue Moon"
+        },
+        {
+          "map_name": "Operation Happy Hour",
+          "map_id": "Operation Happy Hour"
+        },
+        {
+          "map_name": "Operation Blackjack",
+          "map_id": "Operation Blackjack"
+        },
+        {
+          "map_name": "Operation Rising Sun",
+          "map_id": "Operation Rising Sun"
+        },
+        {
+          "map_name": "Operation Home Run",
+          "map_id": "Operation Home Run"
+        },
+        {
+          "map_name": "Operation Ragnarok",
+          "map_id": "Operation Ragnarok"
+        },
+        {
+          "map_name": "Operation Jötunn",
+          "map_id": "Operation Jötunn"
+        },
+        {
+          "map_name": "Operation Excalibur",
+          "map_id": "Operation Excalibur"
+        },
+        {
+          "map_name": "Operation Highlander",
+          "map_id": "Operation Highlander"
+        },
+        {
+          "map_name": "Operation Big Game",
+          "map_id": "Operation Big Game"
+        },
+        {
+          "map_name": "Operation Guillotine",
+          "map_id": "Operation Guillotine"
+        },
+        {
+          "map_name": "Operation Guillotine",
+          "map_id": "Operation Queen’s Gambit"
+        }
+      ]
+    },
+    "3002536508": {
+      "package_name": "局部战争",
+      "maps": [
+        {
+          "map_name": "打狗看主人",
+          "map_id": "打狗看主人"
+        },
+        {
+          "map_name": "对马岛之战",
+          "map_id": "对马岛之战"
+        }
+      ]
+    },
+    "3009823613": {
+      "package_name": "Invasion Of Corsica (MP)",
+      "maps": [
+        {
+          "map_name": "AH-94 PvP Arena. (Hydra)",
+          "map_id": "Helicopter PVP"
+        },
+        {
+          "map_name": "Dynamic Corsica invasion",
+          "map_id": "PvE"
+        },
+        {
+          "map_name": "Corsica freeflight with guns",
+          "map_id": "PvP"
+        },
+        {
+          "map_name": "Invasion de la Corse Aléatoire",
+          "map_id": "Invasion de la Corse Aléatoir"
+        },
+        {
+          "map_name": "ランダム化されたコルシカ侵攻",
+          "map_id": "ランダム化されたコルシカ侵攻"
+        }
+      ]
+    },
+    "3019154401": {
+      "package_name": "bvr training for f26+T55",
+      "maps": [
+        {
+          "map_name": "1vs 6 ai f26",
+          "map_id": "f26"
+        },
+        {
+          "map_name": "1vs 6 ai f26 with aim7",
+          "map_id": "f26 aim7+88"
+        },
+        {
+          "map_name": "1vs 4 ai f26",
+          "map_id": "1vs4"
+        },
+        {
+          "map_name": "1vs 2 ai f26",
+          "map_id": "1vs2"
+        },
+        {
+          "map_name": "1vs 1 ai f26",
+          "map_id": "1vs1"
+        },
+        {
+          "map_name": "1vs 6 ai f26 with aim7",
+          "map_id": "1v6 5aim7+1 aim120"
+        },
+        {
+          "map_name": "1vs 6 ai f26 CGK",
+          "map_id": "1v6 ai CGK"
+        },
+        {
+          "map_name": "1vs 1 ai f26",
+          "map_id": "new"
+        }
+      ]
+    },
+    "3020376148": {
+      "package_name": "Operation Windthrow",
+      "maps": [
+        {
+          "map_name": "Week 1-2 - Charlie Foxtrot",
+          "map_id": "OPWT Week 1"
+        },
+        {
+          "map_name": "Week 2-2 - AH-94 C.A.S.",
+          "map_id": "Week 2"
+        },
+        {
+          "map_name": "Week 3-2 - Griffinport Evacuations",
+          "map_id": "Week 3"
+        },
+        {
+          "map_name": "Week 4-2 - Empty Quiver",
+          "map_id": "Week 4"
+        },
+        {
+          "map_name": "Week 5-2 - Battle for the Bay",
+          "map_id": "week 5"
+        }
+      ]
+    },
+    "3025843835": {
+      "package_name": "Economy Warfare",
+      "maps": [
+        {
+          "map_name": "Economy Warfare PVP",
+          "map_id": "Economy Warfare PVP"
+        }
+      ]
+    },
+    "3026946086": {
+      "package_name": "SAM Busters! [Co-op]",
+      "maps": [
+        {
+          "map_name": "SAM Busters! [Playground/Training]",
+          "map_id": "SAM Busters (Testing Grounds)"
+        },
+        {
+          "map_name": "SAM Busters! [The Mountains, Co-op]",
+          "map_id": "Fictional Mountains"
+        },
+        {
+          "map_name": "SAM Busters! [Vietnam 1968, Co-op]",
+          "map_id": "Korea (Inspired 1953)"
+        },
+        {
+          "map_name": "SAM Busters! [Agressor 2000, Co-op]",
+          "map_id": "NATO Agressor Testing (2000)"
+        },
+        {
+          "map_name": "SAM Busters! [Moscow 2010]",
+          "map_id": "Moscow (Historical-2010)"
+        },
+        {
+          "map_name": "SAM Busters! [Mischief & Mayhem]",
+          "map_id": "Mischief & Mayhem"
+        }
+      ]
+    },
+    "3032021615": {
+      "package_name": "PVE Dynamic v1",
+      "maps": [
+        {
+          "map_name": "Fosi Invasion",
+          "map_id": "pve_dynamic"
+        }
+      ]
+    },
+    "3049717035": {
+      "package_name": "Greek Liberation Evolved",
+      "maps": [
+        {
+          "map_name": "Greek Liberation Evolved",
+          "map_id": "Greek Liberation Evolved"
+        },
+        {
+          "map_name": "Greek Liberation Evolved FOB",
+          "map_id": "Greek Liberation Evolved FOB"
+        }
+      ]
+    },
+    "3050527534": {
+      "package_name": "Ace Combat: Beyond The Sky",
+      "maps": [
+        {
+          "map_name": "SITTING DUCK",
+          "map_id": "Sitting Duck v4"
+        },
+        {
+          "map_name": "IMMINENT THREAT",
+          "map_id": "Imminent Threat"
+        },
+        {
+          "map_name": "THE NORTHERN EYE",
+          "map_id": "Northern Eye"
+        },
+        {
+          "map_name": "NARROW MARGIN",
+          "map_id": "Open War"
+        },
+        {
+          "map_name": "RENDEZVOUS",
+          "map_id": "Rendezvous"
+        },
+        {
+          "map_name": "LIFELINE",
+          "map_id": "M5 Early Bird"
+        },
+        {
+          "map_name": "The Invincible Fleet",
+          "map_id": "The Invincible Fleet"
+        },
+        {
+          "map_name": "DEEP STRIKE",
+          "map_id": "M7 Deep Strike"
+        },
+        {
+          "map_name": "SHATTERED SKIES",
+          "map_id": "Shattered Skies"
+        },
+        {
+          "map_name": "TANGO LINE",
+          "map_id": "M10 Tango Line"
+        },
+        {
+          "map_name": "OPERATION BUNKER SHOT",
+          "map_id": "M9 Operation Bunker Shot"
+        },
+        {
+          "map_name": "BARTOLOMEO FORTRESS",
+          "map_id": "Bartolomeo Fortress"
+        },
+        {
+          "map_name": "DESERT LIGHTNING",
+          "map_id": "Desert Lightning"
+        },
+        {
+          "map_name": "ESCORT",
+          "map_id": "M11 Escort"
+        },
+        {
+          "map_name": "DESERT ARROW",
+          "map_id": "Desert Arrow"
+        },
+        {
+          "map_name": "STONEHENGE OFFENSIVE",
+          "map_id": "M12 Stonehenge Offensive"
+        },
+        {
+          "map_name": "Epilogue/Free Flight",
+          "map_id": "Act 1 Epilogue"
+        }
+      ]
+    },
+    "3074940717": {
+      "package_name": "Operation Dust Devil",
+      "maps": [
+        {
+          "map_name": "Week 1-3 Snaplock",
+          "map_id": "Week 1"
+        },
+        {
+          "map_name": "Week 2-3 Scorched Earth",
+          "map_id": "Week 2"
+        },
+        {
+          "map_name": "Week 3-3 Emergency SOS",
+          "map_id": "Week 3"
+        },
+        {
+          "map_name": "Week 4-3 Drone Facility Assault",
+          "map_id": "Week 4"
+        },
+        {
+          "map_name": "Week 5-3 Tower of Babel",
+          "map_id": "Week 5"
+        }
+      ]
+    },
+    "3113867835": {
+      "package_name": "puzzle in the middle-east",
+      "maps": [
+        {
+          "map_name": "艰难登陆",
+          "map_id": "1"
+        },
+        {
+          "map_name": "意料之外",
+          "map_id": "2"
+        },
+        {
+          "map_name": "夜不能寐",
+          "map_id": "3"
+        },
+        {
+          "map_name": "空中优势PVPVE",
+          "map_id": "4"
+        },
+        {
+          "map_name": "pure PVP BVR",
+          "map_id": "5"
+        },
+        {
+          "map_name": "旋翼之舞",
+          "map_id": "6"
+        },
+        {
+          "map_name": "精密配合 求测试",
+          "map_id": "7"
+        },
+        {
+          "map_name": "单程票 求测试",
+          "map_id": "8"
+        },
+        {
+          "map_name": "难民难路 请测试",
+          "map_id": "9"
+        },
+        {
+          "map_name": "天兵晨勃 选择B队  求测试",
+          "map_id": "10"
+        },
+        {
+          "map_name": "美英下场 求测试",
+          "map_id": "11"
+        },
+        {
+          "map_name": "清除蛀虫 待测试",
+          "map_id": "12"
+        },
+        {
+          "map_name": "未完成",
+          "map_id": "13"
+        },
+        {
+          "map_name": "沙漠眼镜蛇",
+          "map_id": "14"
+        },
+        {
+          "map_name": "清点行动",
+          "map_id": "15"
+        },
+        {
+          "map_name": "精准打击",
+          "map_id": "16"
+        },
+        {
+          "map_name": "debug",
+          "map_id": "17"
+        }
+      ]
+    },
+    "3119660783": {
+      "package_name": "Total Freeflight",
+      "maps": [
+        {
+          "map_name": "Total Freeflight",
+          "map_id": "Total Freeflight"
+        },
+        {
+          "map_name": "Total Freeflight (No PvP)",
+          "map_id": "Total Freeflight (No PvP)"
+        }
+      ]
+    },
+    "3120688372": {
+      "package_name": "bvr training for f26+T55",
+      "maps": [
+        {
+          "map_name": "1vs 6 ai f26",
+          "map_id": "f26"
+        },
+        {
+          "map_name": "1vs 6 ai f26 with aim7",
+          "map_id": "f26 aim7+88"
+        },
+        {
+          "map_name": "1vs 4 ai f26",
+          "map_id": "1vs4"
+        },
+        {
+          "map_name": "1vs 2 ai f26",
+          "map_id": "1vs2"
+        },
+        {
+          "map_name": "1vs 1 ai f26",
+          "map_id": "1vs1"
+        },
+        {
+          "map_name": "1vs 6 ai f26 with aim7",
+          "map_id": "1v6 5aim7+1 aim120"
+        },
+        {
+          "map_name": "1vs 8 ai f26 CGK",
+          "map_id": "1v6 ai CGK"
+        },
+        {
+          "map_name": "1vs 1 ai f26",
+          "map_id": "new"
+        },
+        {
+          "map_name": "1vs 6 ai f26 CGK",
+          "map_id": "1v8 f26 CDK"
+        },
+        {
+          "map_name": "1vs 6 ai f26 no ew",
+          "map_id": "1v6 no ew"
+        },
+        {
+          "map_name": "1vs 4 ai f26 no ew",
+          "map_id": "1v4 no ew"
+        },
+        {
+          "map_name": "1vs 2 ai f26 no ew",
+          "map_id": "1v2 no ew"
+        },
+        {
+          "map_name": "1vs 1 ai f26 no ew",
+          "map_id": "1v1 no ew"
+        },
+        {
+          "map_name": "1vs 8 ai f26 CGK no ew",
+          "map_id": "1v8 cgk no ew"
+        },
+        {
+          "map_name": "1vs 8 ai f26 cdk no ew",
+          "map_id": "1v8 cdk no ew"
+        }
+      ]
+    },
+    "3120925904": {
+      "package_name": "air superiority",
+      "maps": [
+        {
+          "map_name": "Air Superiority",
+          "map_id": "Ef-24G mission"
+        },
+        {
+          "map_name": "EF-24G PVP",
+          "map_id": "Ef-24G PVP"
+        }
+      ]
+    },
+    "3124521551": {
+      "package_name": "Fading Sun",
+      "maps": [
+        {
+          "map_name": "Fading Sun 01: EF-24 Biowarfare",
+          "map_id": "Doom01"
+        },
+        {
+          "map_name": "Fading Sun 02: EF-24 Pestilence",
+          "map_id": "Doom02"
+        },
+        {
+          "map_name": "Fading Sun 03: EF-24 Death",
+          "map_id": "Doom03"
+        },
+        {
+          "map_name": "Fading Sun 04: EF-24G Famine",
+          "map_id": "Doom04"
+        },
+        {
+          "map_name": "Fading Sun 05: EF-24 War",
+          "map_id": "Doom05"
+        },
+        {
+          "map_name": "Fading Sun 06: EF-24 Ratpure",
+          "map_id": "Doom06"
+        }
+      ]
+    },
+    "3125566753": {
+      "package_name": "防守(第一周目)",
+      "maps": [
+        {
+          "map_name": "防守",
+          "map_id": "防守"
+        }
+      ]
+    },
+    "3127554202": {
+      "package_name": "EF-24 Naval Strike",
+      "maps": [
+        {
+          "map_name": "EF-24 Hong Kong Strike",
+          "map_id": "EF-24 Hong Kong Strike"
+        },
+        {
+          "map_name": "EF-24 Hong Kong (Arcade)",
+          "map_id": "EF-24 Hong Kong Arcade"
+        }
+      ]
+    },
+    "3128990001": {
+      "package_name": "Hawks & Talks V2",
+      "maps": [
+        {
+          "map_name": "HNT Chameleon Bay Formation",
+          "map_id": "Hawks & Talks Home Base"
+        },
+        {
+          "map_name": "HNT Chameleon Bay Formation (Modded)",
+          "map_id": "Hawks&Talks Home Base (Modded)"
+        }
+      ]
+    },
+    "3134354733": {
+      "package_name": "Ice and Fire",
+      "maps": [
+        {
+          "map_name": "Akureyri Assault (Co-op)",
+          "map_id": "Akureyri Assault (Co-op)"
+        },
+        {
+          "map_name": "Akureyri Assault (PvPvE)",
+          "map_id": "Akureyri Assault (PvPvE)"
+        },
+        {
+          "map_name": "Akureyri Assault (PvPvE hard)",
+          "map_id": "Akureyru Assault (PvPvE hard)"
+        }
+      ]
+    },
+    "3138456330": {
+      "package_name": "CAW OPs V5",
+      "maps": [
+        {
+          "map_name": "OP: BULL PEN",
+          "map_id": "china2"
+        },
+        {
+          "map_name": "CASE 3 Testing",
+          "map_id": "case3test"
+        },
+        {
+          "map_name": "OP: HONEYPOT",
+          "map_id": "china3"
+        },
+        {
+          "map_name": "OP: LOCKSMITH",
+          "map_id": "russ1"
+        },
+        {
+          "map_name": "OP: OPEN SEASON",
+          "map_id": "russ2"
+        },
+        {
+          "map_name": "OP: BREAD LINE",
+          "map_id": "russ3"
+        },
+        {
+          "map_name": "OP: KICKOFF",
+          "map_id": "kor1.2"
+        },
+        {
+          "map_name": "OP: SLOW COOKED",
+          "map_id": "guam1"
+        },
+        {
+          "map_name": "a",
+          "map_id": "guam2"
+        }
+      ]
+    },
+    "3144279670": {
+      "package_name": "Revo's Ultimate MP Co-op",
+      "maps": [
+        {
+          "map_name": "Ultimate MP Co-op",
+          "map_id": "mission"
+        }
+      ]
+    },
+    "3149305203": {
+      "package_name": "The Citadel",
+      "maps": [
+        {
+          "map_name": "The Citadel",
+          "map_id": "The Citadel"
+        },
+        {
+          "map_name": "The Citadel (Easy)",
+          "map_id": "The Citadel (Easy)"
+        }
+      ]
+    },
+    "3155140727": {
+      "package_name": "Conflictt's Mission Pack",
+      "maps": [
+        {
+          "map_name": "Operation - Velvet Glove(V1.8)",
+          "map_id": "Operation - Velvet Glove"
+        },
+        {
+          "map_name": "Operation - Looming Eagle",
+          "map_id": "Operation - Looming Eagle"
+        }
+      ]
+    },
+    "3161889281": {
+      "package_name": "Missile Evasion Training",
+      "maps": [
+        {
+          "map_name": "AIM120C",
+          "map_id": "AIM120C"
+        },
+        {
+          "map_name": "AIM120D",
+          "map_id": "AIM120D"
+        },
+        {
+          "map_name": "PVP Scenario",
+          "map_id": "PVP Trainning"
+        },
+        {
+          "map_name": "PVP Scenario Infinite ammo",
+          "map_id": "PVP Unlimited"
+        }
+      ]
+    },
+    "3162850150": {
+      "package_name": "Norway Fjords Dynamic COOP",
+      "maps": [
+        {
+          "map_name": "Norway Fjords Dynamic COOP",
+          "map_id": "Norway DynCoop"
+        },
+        {
+          "map_name": "Norway Fjords Dynamic COOP (2Seat)",
+          "map_id": "Norway DynCoop 2SEAT"
+        },
+        {
+          "map_name": "Norway Fjords Dynamic COOP (Hard)",
+          "map_id": "Norway DynCoop HARD"
+        },
+        {
+          "map_name": "Norway Fjords Dynamic COOP (2Seat,Hard)",
+          "map_id": "Norway DynCoop 2SEAT HARD"
+        }
+      ]
+    },
+    "3167536187": {
+      "package_name": "NO NONSENSE CARRIER",
+      "maps": [
+        {
+          "map_name": "NO NONSENSE CARRIER",
+          "map_id": "no nonsense carrier"
+        }
+      ]
+    },
+    "3233663707": {
+      "package_name": "Operation Beta-5",
+      "maps": [
+        {
+          "map_name": "Operation Beta-5",
+          "map_id": "Operation Beta-5"
+        }
+      ]
+    },
+    "3250835763": {
+      "package_name": "AC Style Fighting Anena",
+      "maps": [
+        {
+          "map_name": "Endless Missle Arena PvPvE",
+          "map_id": "Missle Arena"
+        },
+        {
+          "map_name": "Endless Missile Anena PvE",
+          "map_id": "Training all cloud"
+        },
+        {
+          "map_name": "Dogfight Arena(Gun and Heaters)",
+          "map_id": "Training dogfight G&H"
+        },
+        {
+          "map_name": "Dogfight Arena(Gun only)",
+          "map_id": "Training dogfight cloud"
+        },
+        {
+          "map_name": "Dogfight practicing(WIP)",
+          "map_id": "Dogfight practicing"
+        },
+        {
+          "map_name": "Endless Missle Arena PvPvE Mod Ver",
+          "map_id": "Missile Arena F16"
+        }
+      ]
+    },
+    "3257086780": {
+      "package_name": "2-4 Player CO-OP Missions",
+      "maps": [
+        {
+          "map_name": "Iran Invasion",
+          "map_id": "INvade"
+        },
+        {
+          "map_name": "Kill Nasrallah, Operation Dead Rat.",
+          "map_id": "Kill Nasrallah"
+        },
+        {
+          "map_name": "Syria Liberation: Day 1",
+          "map_id": "Syria invasion campaign 1"
+        }
+      ]
+    },
+    "3280411896": {
+      "package_name": "Desert Storm Weasel",
+      "maps": [
+        {
+          "map_name": "Standard",
+          "map_id": "mission 1"
+        },
+        {
+          "map_name": "mid-tech",
+          "map_id": "lowtech"
+        }
+      ]
+    },
+    "3282844556": {
+      "package_name": " Rip Off Carrier Fun V4",
+      "maps": [
+        {
+          "map_name": "Carrier Fun V4",
+          "map_id": "Free For All"
+        }
+      ]
+    },
+    "3288801427": {
+      "package_name": "Advanced Skill Req TopGun ",
+      "maps": [
+        {
+          "map_name": "Top Gun Maverick",
+          "map_id": "Maverick pre alpha"
+        },
+        {
+          "map_name": "Top Gun Maverick Part 2",
+          "map_id": "Mavericks Escape"
+        }
+      ]
+    },
+    "3294497886": {
+      "package_name": "Scrim",
+      "maps": [
+        {
+          "map_name": "Scrim",
+          "map_id": "Scrim"
+        }
+      ]
+    },
+    "3296875580": {
+      "package_name": "Basic training",
+      "maps": [
+        {
+          "map_name": "Level_1_Daytime",
+          "map_id": "Takeoff&Landing"
+        },
+        {
+          "map_name": "Level_1_Complex weather",
+          "map_id": "Level_1_Night"
+        },
+        {
+          "map_name": "carrier landing",
+          "map_id": "Carrier landing"
+        },
+        {
+          "map_name": "missile evading",
+          "map_id": "missile evading"
+        },
+        {
+          "map_name": "SAM evation",
+          "map_id": "SAM evading_1"
+        }
+      ]
+    },
+    "3300369267": {
+      "package_name": "Desert Liberation",
+      "maps": [
+        {
+          "map_name": "Liberation Day 1",
+          "map_id": "Liberation Day 1"
+        },
+        {
+          "map_name": "Liberation Day 2",
+          "map_id": "Liberation Day 2"
+        },
+        {
+          "map_name": "Liberation Day 3",
+          "map_id": "Liberation Day 3"
+        },
+        {
+          "map_name": "Liberation Day 1 Modded",
+          "map_id": "Liberation Day 1 Modded"
+        },
+        {
+          "map_name": "Liberation Day 2 Modded",
+          "map_id": "Liberation Day 2 Modded"
+        },
+        {
+          "map_name": "Liberation Day 3 Modded",
+          "map_id": "Liberation Day 3 Modded"
+        }
+      ]
+    },
+    "3309292065": {
+      "package_name": "N.CALI STRIKE MISSION",
+      "maps": [
+        {
+          "map_name": "T-55 NORTHERN CALIFORNIA 01",
+          "map_id": "N. CALI T55"
+        },
+        {
+          "map_name": "EF24G NORTHERN CALIFORNIA 01",
+          "map_id": "N. CALI EF24G"
+        },
+        {
+          "map_name": "FA26/EF24G NORTHERN CALIFORNIA 01",
+          "map_id": "N. CALI EF24G-FA26B"
+        },
+        {
+          "map_name": "F-45A NORTHERN CALIFORNIA 01",
+          "map_id": "N. CALI F45"
+        },
+        {
+          "map_name": "FA26B/F-45A NORTHERN CALIFORNIA 01",
+          "map_id": "N. CALI F45-FA26"
+        },
+        {
+          "map_name": "FA26/EF24G NORTHERN CALIFORNIA 01",
+          "map_id": "N. CALI EF24G-F45A"
+        }
+      ]
+    },
+    "3310325371": {
+      "package_name": "时局图",
+      "maps": [
+        {
+          "map_name": "狙击艾森豪威尔",
+          "map_id": "1"
+        },
+        {
+          "map_name": "机密信息",
+          "map_id": "2"
+        },
+        {
+          "map_name": "夺取制空权",
+          "map_id": "3"
+        },
+        {
+          "map_name": "拉锯战",
+          "map_id": "4"
+        },
+        {
+          "map_name": "激光",
+          "map_id": "5"
+        }
+      ]
+    },
+    "3315823793": {
+      "package_name": "Antarctic War",
+      "maps": [
+        {
+          "map_name": "Opening Strike",
+          "map_id": "Opening Strike"
+        },
+        {
+          "map_name": "IDEK man",
+          "map_id": "Evening Strike"
+        }
+      ]
+    },
+    "3337556014": {
+      "package_name": "War on the Pacific",
+      "maps": [
+        {
+          "map_name": "Danger Zone (EF-24)",
+          "map_id": "Operation Juicy Apple"
+        }
+      ]
+    },
+    "3341933297": {
+      "package_name": "1v1 BFM Practice",
+      "maps": [
+        {
+          "map_name": "1v1 BFM Practice",
+          "map_id": "Split Islands"
+        },
+        {
+          "map_name": "1v1 BFM Transition Practice",
+          "map_id": "Mtn Lake"
+        },
+        {
+          "map_name": "1v1 City BFM Practice",
+          "map_id": "1v1 City BFM Practice"
+        },
+        {
+          "map_name": "1v1 Mountains BFM Practice",
+          "map_id": "1v1 Mountains BFM Practice"
+        },
+        {
+          "map_name": "1v1 Valley BFM Practice",
+          "map_id": "1v1 Switzerland BFM Practice"
+        },
+        {
+          "map_name": "1v1 Pop-up BFM Practice",
+          "map_id": "1v1 Pop-up Ridge BFM"
+        }
+      ]
+    },
+    "3352901276": {
+      "package_name": "Operation Desert Strike",
+      "maps": [
+        {
+          "map_name": "Operation Desert Strike",
+          "map_id": "Operation Desert Strike"
+        }
+      ]
+    },
+    "3355613749": {
+      "package_name": "Training/Fighting Arena ",
+      "maps": [
+        {
+          "map_name": "飞行员训练营(Training Camp)",
+          "map_id": "AllTraining"
+        },
+        {
+          "map_name": "飞行员训练营(Training Camp Mod Planes Ver)",
+          "map_id": "AllTrainingPlusF16"
+        },
+        {
+          "map_name": "1vs1 Merge Dogfight Arena(Guns Only)",
+          "map_id": "MergeLarge"
+        },
+        {
+          "map_name": "1vs1 Merge Dogfight Arena(GunsOrHeaters)",
+          "map_id": "MergeGunsHeaters"
+        },
+        {
+          "map_name": "1vs1 Merge Dogfight Arena(Mod Ver)",
+          "map_id": "MergeGunMod"
+        },
+        {
+          "map_name": "Missile evasion practice",
+          "map_id": "Missile evasion practice"
+        }
+      ]
+    },
+    "3377430551": {
+      "package_name": "bvr match",
+      "maps": [
+        {
+          "map_name": "bvr for the match",
+          "map_id": "bvr hmap2"
+        },
+        {
+          "map_name": "bvr with ef24 only",
+          "map_id": "bvr f24 only"
+        },
+        {
+          "map_name": "bvr f26-55",
+          "map_id": "bvr f26 only"
+        },
+        {
+          "map_name": "bvr 8v8",
+          "map_id": "bvr 8v8"
+        },
+        {
+          "map_name": "bvr for the match with f16",
+          "map_id": "bvr hmap2 with f16"
+        }
+      ]
+    },
+    "3407546232": {
+      "package_name": "MP Op:Desert Cobra (with F",
+      "maps": [
+        {
+          "map_name": "Base Defense",
+          "map_id": "mission1"
+        },
+        {
+          "map_name": "Retaliation",
+          "map_id": "mission2"
+        },
+        {
+          "map_name": "Strike on Naval Test Lake",
+          "map_id": "mission3"
+        },
+        {
+          "map_name": "Tanker Escort",
+          "map_id": "mission4"
+        },
+        {
+          "map_name": "Departure",
+          "map_id": "mission5"
+        },
+        {
+          "map_name": "Northern Assault",
+          "map_id": "mission6"
+        },
+        {
+          "map_name": "Striking Oil",
+          "map_id": "mission7"
+        },
+        {
+          "map_name": "Decapitation",
+          "map_id": "mission8"
+        }
+      ]
+    },
+    "3414667675": {
+      "package_name": "Korean War Continued",
+      "maps": [
+        {
+          "map_name": "Peninsula Liberation",
+          "map_id": "Peninsula Liberation"
+        }
+      ]
+    },
+    "3416112025": {
+      "package_name": "Operation Flame Serpent",
+      "maps": [
+        {
+          "map_name": "Operation Flame Serpent",
+          "map_id": "Operation Flaming Serpent V1.0"
+        }
+      ]
+    },
+    "3416426214": {
+      "package_name": "Sandstorm Dynamic PVE",
+      "maps": [
+        {
+          "map_name": "Dynamic Sandstorm",
+          "map_id": "Sandstorm Dynamic"
+        },
+        {
+          "map_name": "Sandstorm Dynamic Day 2",
+          "map_id": "Sandstorm Dynamic 2"
+        },
+        {
+          "map_name": "Sandstorm Dynamic Day 2 (Low Tech)",
+          "map_id": "Sandstorm Dynamic 2 Low Tech"
+        },
+        {
+          "map_name": "Sandstorm Dynamic Day 2 (F16+A10)",
+          "map_id": "Sandstorm Dynamic 2 + Mods"
+        },
+        {
+          "map_name": "Sandstorm Dynamic Day 2(LowTech+F16&A10)",
+          "map_id": "Sandstorm Dynamic 2 LT + Mods"
+        },
+        {
+          "map_name": "Sandstorm Dynamic Day 2 (SU47+F16+A10)",
+          "map_id": "Sandstorm Dynamic 2 + SU47"
+        }
+      ]
+    },
+    "3422534438": {
+      "package_name": "DartVR 2025 Campaign",
+      "maps": [
+        {
+          "map_name": "Tutorial 2025",
+          "map_id": "Tutorial 2025"
+        },
+        {
+          "map_name": "Building A Fleet",
+          "map_id": "Building the Fleet"
+        },
+        {
+          "map_name": "Battle of the Serdio Islands",
+          "map_id": "Battle of the Serdio Islands"
+        },
+        {
+          "map_name": "Base Defense",
+          "map_id": "Base Defense"
+        },
+        {
+          "map_name": "Carrier Defense 2025",
+          "map_id": "Carrier Defense 2025"
+        },
+        {
+          "map_name": "A Tale of 2 Cities",
+          "map_id": "A Tale of 2 Cities"
+        },
+        {
+          "map_name": "Operation Bass Drop",
+          "map_id": "Operation Bass Drop"
+        },
+        {
+          "map_name": "Carrier Defense Pt 2 2025",
+          "map_id": "Carrier Defense 2 2025"
+        },
+        {
+          "map_name": "Airline Transport",
+          "map_id": "DartVR Airlines"
+        },
+        {
+          "map_name": "2nd Battle of Serdio Islands",
+          "map_id": "2nd Battle of Serdio Islands"
+        },
+        {
+          "map_name": "Hurricane Carrier Landing Practice",
+          "map_id": "Hurricane Carrier Practice"
+        },
+        {
+          "map_name": "Base Assault",
+          "map_id": "Base Assault"
+        },
+        {
+          "map_name": "Open Ocean Battle",
+          "map_id": "Open Ocean Battle"
+        },
+        {
+          "map_name": "Air to Ground Forever Mission 2025",
+          "map_id": "ATG 4 Ever & Ever"
+        },
+        {
+          "map_name": "ATA Forever",
+          "map_id": "ATA 4 Ever & Ever"
+        },
+        {
+          "map_name": "ATS forever and ever Rebuild",
+          "map_id": "Infinte Air to Sea"
+        }
+      ]
+    },
+    "3445248092": {
+      "package_name": "Operation: Cerberus",
+      "maps": [
+        {
+          "map_name": "Operation Cerberus: Day 1 Combined Arms",
+          "map_id": "OperationCerberusUkraine"
+        },
+        {
+          "map_name": "Operation Cerberus: Day 1 AV-42/AH-94",
+          "map_id": "OperationCerberusRotary"
+        },
+        {
+          "map_name": "Operation Cerberus: Day 1 Jets Only",
+          "map_id": "OperationCerberusFixedWing"
+        }
+      ]
+    },
+    "3452154355": {
+      "package_name": "Operation Silence",
+      "maps": [
+        {
+          "map_name": "Phase 1 Airbase",
+          "map_id": "Phase 1 Airbase CAP"
+        },
+        {
+          "map_name": "Phase 2 Recon",
+          "map_id": "Phase 2 Reconnaissance"
+        },
+        {
+          "map_name": "Phase 3 Destroy",
+          "map_id": "Phase 3 Destroy"
+        }
+      ]
+    },
+    "3460173483": {
+      "package_name": "Operation: Coming Storm",
+      "maps": [
+        {
+          "map_name": "Operation: Coming Storm Day 1",
+          "map_id": "test4"
+        },
+        {
+          "map_name": "Operation: Reaper Down",
+          "map_id": "Operation Reaper Down"
+        },
+        {
+          "map_name": "untitled",
+          "map_id": "Operation Iron Reign"
+        }
+      ]
+    },
+    "3462232617": {
+      "package_name": "剧情向多人任务",
+      "maps": [
+        {
+          "map_name": "海岛突击-双人",
+          "map_id": "Maverick"
+        }
+      ]
+    },
+    "3468735890": {
+      "package_name": "Headless Server",
+      "maps": [
+        {
+          "map_name": "BVR afMtnsHills",
+          "map_id": "BVR afMtnsHills"
+        },
+        {
+          "map_name": "BVR MtnLakes",
+          "map_id": "BVR MtnLakes"
+        },
+        {
+          "map_name": "BVR Pillars",
+          "map_id": "BVR Pillars"
+        },
+        {
+          "map_name": "BVR Archipel",
+          "map_id": "BVR Archipel"
+        },
+        {
+          "map_name": "BVR Crack",
+          "map_id": "BVR Crack"
+        },
+        {
+          "map_name": "BVR Ethi5",
+          "map_id": "BVR Ethi5"
+        },
+        {
+          "map_name": "BVR Tepui",
+          "map_id": "BVR Tepui"
+        },
+        {
+          "map_name": "BVR Fyord2",
+          "map_id": "BVR Fyord2"
+        },
+        {
+          "map_name": "BVR George",
+          "map_id": "BVR George"
+        },
+        {
+          "map_name": "BVR Dnalreztiws",
+          "map_id": "BVR Dnalreztiws"
+        },
+        {
+          "map_name": "BVR hMap2",
+          "map_id": "BVR hMap2"
+        },
+        {
+          "map_name": "BVR Ocixem",
+          "map_id": "BVR Ocixem"
+        }
+      ]
+    },
+    "3469008353": {
+      "package_name": "4v4 Scrim Tournament",
+      "maps": [
+        {
+          "map_name": "4v4 Scrim Tournament",
+          "map_id": "Scrim"
+        }
+      ]
+    },
+    "3470673636": {
+      "package_name": "test",
+      "maps": [
+        {
+          "map_name": "untitled",
+          "map_id": "test hoj"
+        },
+        {
+          "map_name": "test",
+          "map_id": "test long range radar"
+        }
+      ]
+    },
+    "3471258998": {
+      "package_name": "The Caucasus",
+      "maps": [
+        {
+          "map_name": "Caucasus BVR",
+          "map_id": "BVR"
+        },
+        {
+          "map_name": "Caucasus Liberation",
+          "map_id": "PVE"
+        }
+      ]
+    },
+    "3472385651": {
+      "package_name": "Dynamic Hawaii Liberation",
+      "maps": [
+        {
+          "map_name": "Dynamic Hawaii Liberation - Easy",
+          "map_id": "kawaii easy"
+        },
+        {
+          "map_name": "Dynamic Hawaii Liberation - Medium",
+          "map_id": "kawaii medium"
+        },
+        {
+          "map_name": "Dynamic Hawaii Liberation - Hard",
+          "map_id": "kawaii hard"
+        },
+        {
+          "map_name": "Dynamic Hawaii Liberation - Lunatic!!!",
+          "map_id": "kawaii lunatic"
+        }
+      ]
+    },
+    "3479874073": {
+      "package_name": "PVP REICH CAMPAIGN",
+      "maps": [
+        {
+          "map_name": "城市实控权De facto control over the city",
+          "map_id": "Scrim"
+        },
+        {
+          "map_name": "城市实控权De facto control over the city",
+          "map_id": "2"
+        }
+      ]
+    },
+    "3484421912": {
+      "package_name": "bvr training",
+      "maps": [
+        {
+          "map_name": "road to ace",
+          "map_id": "bvr training"
+        },
+        {
+          "map_name": "kill the E4",
+          "map_id": "kill e4"
+        },
+        {
+          "map_name": "kill the E4 easy",
+          "map_id": "kill the e4 easy"
+        }
+      ]
+    },
+    "3504475059": {
+      "package_name": "operation hidden war",
+      "maps": [
+        {
+          "map_name": "1: Unexpected guests",
+          "map_id": "hiddenWar1"
+        },
+        {
+          "map_name": "2: the raid",
+          "map_id": "hiddenWar2"
+        },
+        {
+          "map_name": "3: Tactical retreat",
+          "map_id": "hiddenWar3"
+        },
+        {
+          "map_name": "4: November-6",
+          "map_id": "hiddenWar4"
+        },
+        {
+          "map_name": "5: Gathering intel",
+          "map_id": "hiddenwar5"
+        },
+        {
+          "map_name": "6: The Siren",
+          "map_id": "hiddenWar6"
+        },
+        {
+          "map_name": "7: Counter attack",
+          "map_id": "hiddenWar7"
+        },
+        {
+          "map_name": "8: The city in the clouds",
+          "map_id": "hiddenWar8"
+        },
+        {
+          "map_name": "9: shameful display",
+          "map_id": "hiddenWar9"
+        }
+      ]
+    },
+    "3524985837": {
+      "package_name": "Operation Double Strike",
+      "maps": [
+        {
+          "map_name": "OP.DS.MP.M1",
+          "map_id": "opdpmp mission 1"
+        },
+        {
+          "map_name": "OP.DS.MP.M.2",
+          "map_id": "opdpmp mission 2"
+        }
+      ]
+    },
+    "3535891674": {
+      "package_name": "Virtuous Missions",
+      "maps": [
+        {
+          "map_name": "Fleet Duel",
+          "map_id": "Fleet Duel"
+        },
+        {
+          "map_name": "Airbase Raid",
+          "map_id": "Part 1"
+        },
+        {
+          "map_name": "Fog of War",
+          "map_id": "Part 2"
+        },
+        {
+          "map_name": "Port Defenders",
+          "map_id": "Part 3 AH-94 Strike"
+        }
+      ]
+    },
+    "3555120803": {
+      "package_name": "Operation Iron Tide",
+      "maps": [
+        {
+          "map_name": "Operation Iron Tide",
+          "map_id": "Invasion of United Kingdom"
+        }
+      ]
+    },
+    "3565977220": {
+      "package_name": "Operation: Iron Oxide",
+      "maps": [
+        {
+          "map_name": "Internal Purge",
+          "map_id": "REDFLAG"
+        },
+        {
+          "map_name": "Heaven Piercer",
+          "map_id": "HEAVENPIERCER"
+        },
+        {
+          "map_name": "Sea of Blood",
+          "map_id": "WW"
+        }
+      ]
+    },
+    "3567449389": {
+      "package_name": "Operation November Rising",
+      "maps": [
+        {
+          "map_name": "1: A single mistake",
+          "map_id": "ONU1"
+        },
+        {
+          "map_name": "2: A year later",
+          "map_id": "ONR2"
+        },
+        {
+          "map_name": "3: rebel strike",
+          "map_id": "ONR3"
+        },
+        {
+          "map_name": "4: Turning tides",
+          "map_id": "ONR4"
+        },
+        {
+          "map_name": "5: Secrets",
+          "map_id": "ONR5"
+        },
+        {
+          "map_name": "6: The sunken city",
+          "map_id": "ONR6"
+        },
+        {
+          "map_name": "7: Inside the Hive",
+          "map_id": "ONR7"
+        },
+        {
+          "map_name": "8: downfall",
+          "map_id": "ONR8"
+        }
+      ]
+    },
+    "3568412389": {
+      "package_name": "Operation Midnight Tempest",
+      "maps": [
+        {
+          "map_name": "Mission 1",
+          "map_id": "Mission 1"
+        },
+        {
+          "map_name": "Mission 2",
+          "map_id": "Mission 2"
+        }
+      ]
+    },
+    "3574063672": {
+      "package_name": "OP: OAK TREE",
+      "maps": [
+        {
+          "map_name": "Stealth strike",
+          "map_id": "stealth strike"
+        }
+      ]
+    },
+    "3583755382": {
+      "package_name": "8v8 BVR PACK",
+      "maps": [
+        {
+          "map_name": "Dragon's Valley",
+          "map_id": "Dragon's Valley"
+        },
+        {
+          "map_name": "Fjord Coast",
+          "map_id": "Fjord Coast"
+        },
+        {
+          "map_name": "Black Tulips",
+          "map_id": "Black Tulips"
+        }
+      ]
+    },
+    "AH-94 Multicrew": {
+      "package_name": "AH-94 Multicrew",
+      "maps": [
+        {
+          "map_name": "Urban Liberation",
+          "map_id": "ah94_mp1"
+        },
+        {
+          "map_name": "Midnight Assassin",
+          "map_id": "ah94_mp2_coast"
+        }
+      ]
+    },
+    "AH-94 Quick Flight": {
+      "package_name": "AH-94 Quick Flight",
+      "maps": [
+        {
+          "map_name": "AH-94 Deathmatch 4v4",
+          "map_id": "ah94_4v4pvp"
+        },
+        {
+          "map_name": "AH-94 Free Flight",
+          "map_id": "ah94_mpFreeFlight"
+        },
+        {
+          "map_name": "Arctic Assault",
+          "map_id": "arcticAssault"
+        },
+        {
+          "map_name": "Flight Practice",
+          "map_id": "flightPractice"
+        },
+        {
+          "map_name": "Small Arms",
+          "map_id": "smallArms"
+        },
+        {
+          "map_name": "Surprise Attack",
+          "map_id": "surpriseAttack"
+        },
+        {
+          "map_name": "Target Practice",
+          "map_id": "Target Practice"
+        }
+      ]
+    },
+    "Border War": {
+      "package_name": "Border War",
+      "maps": [
+        {
+          "map_name": "Show Of Force",
+          "map_id": "01-showOfForce"
+        },
+        {
+          "map_name": "Raiding the Nest",
+          "map_id": "02-nestRaid"
+        },
+        {
+          "map_name": "SEAD",
+          "map_id": "03-sead"
+        },
+        {
+          "map_name": "Danger Close",
+          "map_id": "04-cas"
+        },
+        {
+          "map_name": "Checkmate",
+          "map_id": "05-elimination"
+        }
+      ]
+    },
+    "Coop/Freeflight": {
+      "package_name": "Coop/Freeflight",
+      "maps": [
+        {
+          "map_name": "F-45 Cooperative Mission",
+          "map_id": "45_pveStrike"
+        },
+        {
+          "map_name": "Free Flight / Airshow",
+          "map_id": "airshowFreeflight"
+        },
+        {
+          "map_name": "F/A-26B Naval Strike Mission",
+          "map_id": "mp_navalMission"
+        },
+        {
+          "map_name": "Naval Strike - EW Edition",
+          "map_id": "mp_navalMission2"
+        }
+      ]
+    },
+    "EF-24 Multicrew": {
+      "package_name": "EF-24 Multicrew",
+      "maps": [
+        {
+          "map_name": "Peacekeeper",
+          "map_id": "antiproliferation"
+        },
+        {
+          "map_name": "Valley of Death",
+          "map_id": "Valley of Death"
+        }
+      ]
+    },
+    "One Minute to Midnight": {
+      "package_name": "One Minute to Midnight",
+      "maps": [
+        {
+          "map_name": "DEAD Islands",
+          "map_id": "0-islandSead"
+        },
+        {
+          "map_name": "Homesick",
+          "map_id": "1-homesick"
+        },
+        {
+          "map_name": "Blinding Darkness",
+          "map_id": "2-blindingDarkness"
+        },
+        {
+          "map_name": "House Cleaning",
+          "map_id": "3-houseCleaning"
+        },
+        {
+          "map_name": "Bomber Intercept",
+          "map_id": "4-bomberIntercept"
+        },
+        {
+          "map_name": "Operation 2359",
+          "map_id": "5-operation2359"
+        }
+      ]
+    },
+    "PVP Scenarios": {
+      "package_name": "PVP Scenarios",
+      "maps": [
+        {
+          "map_name": "A2A BVR Combat",
+          "map_id": "26b_bvrTest"
+        },
+        {
+          "map_name": "Dogfight Guns'n'Heaters",
+          "map_id": "26b_dogfightGunsMissiles"
+        },
+        {
+          "map_name": "AV-42C Deathmatch",
+          "map_id": "42c_deathmatch"
+        },
+        {
+          "map_name": "Capture the Flag",
+          "map_id": "Capture the Flag"
+        },
+        {
+          "map_name": "F/A-26B Dogfight (Guns Only)",
+          "map_id": "mp_26bDogfightGuns"
+        },
+        {
+          "map_name": "PVP Strike Mission",
+          "map_id": "mp_baseAttack"
+        },
+        {
+          "map_name": "Economy War",
+          "map_id": "mp_exileRidge_pvpve"
+        },
+        {
+          "map_name": "PVP Strike Mission (Budget)",
+          "map_id": "mp_pvpStrikeBudget"
+        },
+        {
+          "map_name": "[LOW TECH] PVP Strike Mission",
+          "map_id": "mp_pvpStrikeLowTech"
+        }
+      ]
+    },
+    "T-55 Multiplayer": {
+      "package_name": "T-55 Multiplayer",
+      "maps": [
+        {
+          "map_name": "Attack Practice",
+          "map_id": "attackPractice"
+        },
+        {
+          "map_name": "BFM Practice (PVP)",
+          "map_id": "bfmPractice"
+        },
+        {
+          "map_name": "Naval Patrol Training",
+          "map_id": "navalPatrol"
+        },
+        {
+          "map_name": "Coastal Defense",
+          "map_id": "strike1"
+        }
+      ]
+    }
+  }
+}

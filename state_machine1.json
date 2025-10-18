@@ -1,0 +1,26 @@
+{
+    "config": [
+        "Default Package Name",
+        "Default Author"
+    ],
+    "StateMachine": [
+        {
+            "Key": "1",
+            "campaign name": "BVR Ocixem",
+            "campaign id": "3468735890",
+            "mapname": "BVR Ocixem",
+            "Entry cond": "0",
+            "Condition funcs": "",
+            "Linked State": []
+        },
+        {
+            "Key": "2",
+            "campaign name": "BVR Archipel",
+            "campaign id": "2860956181",
+            "mapname": "BVR Archipel",
+            "Entry cond": "0",
+            "Condition funcs": "",
+            "Linked State": []
+        }
+    ]
+}
