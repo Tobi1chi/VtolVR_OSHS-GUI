@@ -1,8 +1,10 @@
 import socket
 import threading
+import queue
 from PyQt6.QtCore import pyqtSignal, QObject
 class SocketWorker(QObject):
     message_received = pyqtSignal(str)
+    debug_received = pyqtSignal(str)
 
     def __init__(self, host='localhost', port=23232):
         super().__init__()
@@ -10,21 +12,31 @@ class SocketWorker(QObject):
         self.port = port
         self.sock = None
         self.running = False
+        self.queue = None
 
     def connect_socket(self):
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect((self.host, self.port))
+            self.sock.setblocking(False)
             self.running = True
-            threading.Thread(target=self._listen, daemon=True).start()
-            return True
+            self.debug_received.emit(f"[Info] Connected to server {self.host}:{self.port}")
+            self.queue = queue.Queue()
+            self.listen_thread = threading.Thread(target=self._listen, daemon=True)
+            self.listen_thread.start()
         except Exception as e:
-            self.message_received.emit(f"[Error] {e}")
-            return False
+            self.debug_received.emit(f"[Error] {e}")
 
     def _listen(self):
         binary_buffer = bytes()  # 使用二进制缓冲区存储未解码的数据
         while self.running:
+            # Check connection
+            try:
+                self.sock.getpeername()
+            except:
+                self.running = False
+                break
+            # Try receive data
             try:
                 data = self.sock.recv(4096)
                 if not data:
@@ -82,16 +94,25 @@ class SocketWorker(QObject):
                     # 如果无法找到有效边界，保留整个缓冲区
                     # 下一次接收到数据时会再次尝试
             except Exception as e:
-                self.message_received.emit(f"[Recv Error] {e}")
-                break
-        self.running = False
-
-    def send_command(self, cmd: str):
-        if self.sock and self.running:
-            try:
+                if type(e) is not BlockingIOError:
+                    self.debug_received.emit(f"[Recv Error] {e}")
+                    break
+            # Try send data
+            if not self.queue.empty():
+                # 从队列中获取命令
+                cmd = self.queue.get_nowait()
                 self.sock.sendall((cmd + '\n').encode('utf-8'))
+          
+        self.debug_received.emit(f"[SocketWorker] {self.host}:{self.port} disconnected")
+        self.sock.close()  
+        self.running = False
+    
+    def send_command(self, cmd: str):
+        if self.queue and self.running:
+            try:
+                self.queue.put_nowait(cmd)
             except Exception as e:
-                self.message_received.emit(f"[Send Error] {e}")
+                self.debug_received.emit(f"[Send Error] {e}")
 
     def close(self):
         self.running = False

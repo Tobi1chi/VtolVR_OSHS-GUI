@@ -111,7 +111,8 @@ class TerminalWidget(QWidget):
         self.input.installEventFilter(self)
 
         self.socket_worker = SocketWorker()
-        self.socket_worker.message_received.connect(self.append_output)
+        self.socket_worker.message_received.connect(self.onReceive)
+        self.socket_worker.debug_received.connect(self.append_output)
         #self.socket_worker.message_received.connect(JsonParser.test)
         self.parser = JsonParser("Socket")
         self.dict_json = {}
@@ -127,18 +128,21 @@ class TerminalWidget(QWidget):
                 return True
         return super().eventFilter(obj, event)
 
-    def append_output(self, text):
+    def onReceive(self, text:str):
         self.dict_json = self.parser.todict(text)
+        if self.dict_json != {}:
+            self.append_output(json.dumps(self.dict_json, indent=4, ensure_ascii=False))
+    
+    def append_output(self, text):
         self.output.append(text)
+    
     def connect_to_server(self):
-        if self.socket_worker.connect_socket():
-            self.append_output("[Info] Connected to localhost:23232")
-        else:
-            self.append_output("[Info] Failed to connect")
+        self.socket_worker.connect_socket()
 
     def send_command_api(self, command:str):
         self.socket_worker.send_command(command)
         self.output.append(f"> {command}")
+    
     def clear(self):
         self.output.clear()
 
