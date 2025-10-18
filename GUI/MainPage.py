@@ -14,6 +14,11 @@ from PyQt6.QtGui import QFont
 from core.SocketWorker import SocketWorker
 from core.SysState import SysState
 from core.StringParser import JsonParser
+from core.ServerReplyProcess import ServerReplyProcess
+
+serverReplyProcess = ServerReplyProcess()
+terminal = None
+
 # ========== Page 1: 原始主界面 ==========
 class MainPage(QWidget):
     def __init__(self, switch_callback):
@@ -25,7 +30,7 @@ class MainPage(QWidget):
 
         # Top bar
         top_bar = QHBoxLayout()
-        buttons = ["Connect", "Clear", "Check", "Host", "Start", "Skip", "Restart", "Quit", "Quit Server"]
+        buttons = ["Connect", "Clear", "Check Host", "Config Host", "Host", "Start", "Skip", "Restart", "Quit", "Quit Server"]
         for name in buttons:
             btn = QPushButton(name)
             if name == "Quit":
@@ -34,8 +39,10 @@ class MainPage(QWidget):
                 btn.clicked.connect(self.connect_terminal)
             elif name == "Host":
                 btn.clicked.connect(self.host_game)
-            elif name == "Check":
-                btn.clicked.connect(self.check_config)
+            elif name == "Check Host":
+                btn.clicked.connect(self.check_host)
+            elif name == "Config Host":
+                btn.clicked.connect(self.config_host)
             elif name == "Start":
                 btn.clicked.connect(self.start_game)
             elif name == "Skip":
@@ -60,6 +67,8 @@ class MainPage(QWidget):
 
         # Left: Terminal
         self.terminal = TerminalWidget()
+        global terminal
+        terminal = self.terminal
         # Right: Dashboard
         self.dashboard = DashboardWidget()
 
@@ -72,10 +81,10 @@ class MainPage(QWidget):
     def connect_terminal(self):
         self.terminal.connect_to_server()
     def host_game(self):
-        self.terminal.send_command_api("config")
-        time.sleep(1)
         self.terminal.send_command_api("host")
-    def check_config(self):
+    def check_host(self):
+        self.terminal.send_command_api("checkhost")
+    def config_host(self):
         self.terminal.send_command_api("config")
     def start_game(self):
         self.terminal.send_command_api("start")
@@ -86,7 +95,7 @@ class MainPage(QWidget):
     def quit_game(self):
         self.terminal.send_command_api("quit")
     def quit_server(self):
-        self.terminal.send_command_api("quit")
+        self.terminal.send_command_api("exitapp")
     def clear_console(self):
         self.terminal.clear()
 
@@ -132,6 +141,7 @@ class TerminalWidget(QWidget):
         self.dict_json = self.parser.todict(text)
         if self.dict_json != {}:
             self.append_output(json.dumps(self.dict_json, indent=4, ensure_ascii=False))
+            serverReplyProcess.process(self.dict_json)
     
     def append_output(self, text):
         self.output.append(text)
@@ -252,6 +262,9 @@ class DashboardWidget(QWidget):
         self.update_display(mode)
 
     def update_display(self, mode):
+        global serverReplyProcess
+        global terminal
+        terminalAvail = (not terminal is None) and terminal.socket_worker.running
         # Generate content based on mode
         if mode == "States":
             mem = self.stats.memory
@@ -261,13 +274,19 @@ class DashboardWidget(QWidget):
                 f"    - 已用内存: {mem.used / (1024**3):.2f} GB\n"
                 f"    - 可用内存: {mem.available / (1024**3):.2f} GB\n"
                 f"    - 内存使用率: {mem.percent}%\n"
+                f"Last replied state change:\n"
+                f"    - {serverReplyProcess.lastState}"
             )
         elif mode == "Player List":
-            content = "Player List\n(No players connected)"
+            content = "Player List\n" + "\n".join(serverReplyProcess.players)
+            if terminalAvail:
+                terminal.send_command_api("player")
         elif mode == "Actor List":
-            content = "Actor List\n(No actors active)"
+            content = "Actor List\n" + "\n".join(serverReplyProcess.actors)
+            if terminalAvail:
+                terminal.send_command_api("list")
         elif mode == "Flight Logs":
-            content = "Flight Logs\n(No recent logs)"
+            content = "Flight Logs\n" + "\n".join(serverReplyProcess.logs)
         else:
             content = "Unknown mode"
 
