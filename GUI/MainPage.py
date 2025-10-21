@@ -276,13 +276,16 @@ class DashboardWidget(QWidget):
         terminalAvail = (not terminal is None) and terminal.socket_worker.running
         # Generate content based on mode
         if mode == "States":
+            processName = "VTOL VR"
             mem = self.stats.memory
+            pid = self.stats.find_pid_by_name(processName)
             content = (
                 f"Performance stats:\n"
                 f"    - 总内存: {mem.total / (1024**3):.2f} GB\n"
                 f"    - 已用内存: {mem.used / (1024**3):.2f} GB\n"
                 f"    - 可用内存: {mem.available / (1024**3):.2f} GB\n"
                 f"    - 内存使用率: {mem.percent}%\n"
+                f"    - 游戏内存占用：{self.stats.findMemUsageByPID(pid)}%\n"
                 f"Last replied state change:\n"
                 f"    - {serverReplyProcess.lastState}"
             )
@@ -293,7 +296,7 @@ class DashboardWidget(QWidget):
         elif mode == "Actor List":
             content = "Actor List\n" + "\n".join([str(u) for u in serverReplyProcess.actors])
             if terminalAvail:
-                terminal.send_command_api("list", auto=True)
+                terminal.send_command_api("list all", auto=True)
         elif mode == "Flight Logs":
             content = "Flight Logs\n" + "\n".join(serverReplyProcess.logs)
         else:
