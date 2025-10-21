@@ -37,13 +37,13 @@ class SysState(QObject):
             except psutil.AccessDenied:
                 return {"error": f"Access denied to process {pid}"}
         return "1"
-    def find_pid_by_name(self,process_name:str):
+    def find_pid_by_name(self,process_name:str)->int:
         #根据进程名字查找id
-        pids = []
+        pids = 0
         for proc in psutil.process_iter(['pid', 'name']):
             try:
                 if proc.info['name'] == process_name:
-                    pids.append(proc.info['pid'])
+                    pids = proc.info['pid']
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 # 进程可能在遍历时已退出，跳过
                 continue

@@ -276,16 +276,25 @@ class DashboardWidget(QWidget):
         terminalAvail = (not terminal is None) and terminal.socket_worker.running
         # Generate content based on mode
         if mode == "States":
-            processName = "VTOL VR"
+            processName = "VTOLVR.exe"
             mem = self.stats.memory
             pid = self.stats.find_pid_by_name(processName)
+            mem_usage_dict = self.stats.findMemUsageByPID(pid)
+            mem_usage_arr = [0]*4
+            if "pid" in mem_usage_dict:
+                mem_usage_arr[0] = mem_usage_dict.get('pid')
+                mem_usage_arr[1] = mem_usage_dict.get('rss_mb')
+                mem_usage_arr[2] = mem_usage_dict.get('vms_mb')
+                mem_usage_arr[3] = mem_usage_dict.get("memory_percent")
+                
             content = (
                 f"Performance stats:\n"
                 f"    - 总内存: {mem.total / (1024**3):.2f} GB\n"
                 f"    - 已用内存: {mem.used / (1024**3):.2f} GB\n"
                 f"    - 可用内存: {mem.available / (1024**3):.2f} GB\n"
                 f"    - 内存使用率: {mem.percent}%\n"
-                f"    - 游戏内存占用：{self.stats.findMemUsageByPID(pid)}%\n"
+                f"    - 检测pid: {pid}\n"
+                f"    - 游戏内存占用：{mem_usage_arr[3]}%\n"
                 f"Last replied state change:\n"
                 f"    - {serverReplyProcess.lastState}"
             )
