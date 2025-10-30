@@ -15,22 +15,33 @@ from core.SocketWorker import SocketWorker
 from core.SysState import SysState
 from core.StringParser import JsonParser
 from core.ServerReplyProcess import ServerReplyProcess
-
+from core.ReplayPackger import replayPacker
+from core.test import TimerManager, FSMActuator
+#from core.test import 
 serverReplyProcess = ServerReplyProcess()
+rpPacker = replayPacker()
 terminal = None
 
+tm = TimerManager()
+fsm = FSMActuator()
+#Private constants
+S2MS = 1000
+MIN2MS = 60 * S2MS
+H2MS = 60 * MIN2MS
 # ========== Page 1: 原始主界面 ==========
 class MainPage(QWidget):
     def __init__(self, switch_callback):
         super().__init__()
         self.switch_callback = switch_callback
-
+        self.TestClick:bool = False
+        global tm
+        global fsm
         layout = QVBoxLayout()
         self.setLayout(layout)
-
         # Top bar
         top_bar = QHBoxLayout()
         buttons = ["Connect", "Clear", "Check Host", "Config Host", "Host", "Start", "Skip", "Restart", "Quit", "Quit Server"]
+        buttons.append("Test")
         for name in buttons:
             btn = QPushButton(name)
             if name == "Quit":
@@ -53,6 +64,8 @@ class MainPage(QWidget):
                 btn.clicked.connect(self.quit_server)
             elif name == "Clear":
                 btn.clicked.connect(self.clear_console)
+            elif name == "Test":
+                btn.clicked.connect(self.TestFunc)
             top_bar.addWidget(btn)
 
         self.switch_btn = QPushButton("Mission Editor")
@@ -98,7 +111,14 @@ class MainPage(QWidget):
         self.terminal.send_command_api("exitapp")
     def clear_console(self):
         self.terminal.clear()
-
+    def TestFunc(self):
+        print("Test")
+        self.TestClick = not self.TestClick
+        tm.start_timer("Test", 10*S2MS, fsm.TestFuncFSM, single_shot=True)
+        tm.start_timer("Test1",2*S2MS, fsm.TestFuncFSM)
+        print("当前定时器列表:", tm.list_timers())
+        print("Test 定时器是否活跃:", tm.is_timer_active("Test"))
+        tm.stop_timer("Test1")
 # ========== Terminal 组件（不变） ==========
 class TerminalWidget(QWidget):
     def __init__(self):
@@ -171,7 +191,7 @@ class DashboardWidget(QWidget):
         super().__init__()
         layout = QVBoxLayout()
         self.setLayout(layout)
-
+        self.stagestate:bool = False
         # Core utils
         self.stats = SysState()
 
@@ -245,6 +265,7 @@ class DashboardWidget(QWidget):
         self.auto_refresh_timer = QTimer(self)
         self.auto_refresh_timer.timeout.connect(self._auto_refresh_display)
         self.check2.stateChanged.connect(self._toggle_auto_refresh)
+        self.check1.stateChanged.connect(self._stagestate)
 
         # Initial display
         self.update_display("States")
@@ -275,6 +296,12 @@ class DashboardWidget(QWidget):
         global terminal
         terminalAvail = (not terminal is None) and terminal.socket_worker.running
         # Generate content based on mode
+        if self.stagestate:
+            terminal.send_command_api("getstage", True)
+            print(serverReplyProcess.stage)
+            fsm.TestFuncFSM()
+            print(fsm.counter)
+
         if mode == "States":
             processName = "VTOLVR.exe"
             mem = self.stats.memory
@@ -316,4 +343,7 @@ class DashboardWidget(QWidget):
         scrollbarpos = self.display_area.verticalScrollBar().value()
         self.display_area.setText(content)
         self.display_area.verticalScrollBar().setValue(scrollbarpos)
+
+    def _stagestate(self):
+        self.stagestate = not self.stagestate
 

@@ -21,6 +21,7 @@ def parse_and_save_to_csv(input_file, output_file):
             line = line.strip()
             if not line:
                 continue
+                
 
             # 检查是否为主包行
             main_match = main_pattern.search(line)

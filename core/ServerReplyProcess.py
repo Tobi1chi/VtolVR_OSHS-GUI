@@ -4,12 +4,14 @@ class ServerReplyProcess:
         self.logs = []
         self.players = []
         self.actors = []
+        self.stage = ""
         self.lastState = ""
         
         self.processDict = {
             'OnChatMsg': self.processChatMessage,
             'ListActors': self.processListActors,
-            'ListPlayer': self.processListPlayer
+            'ListPlayer': self.processListPlayer,
+            'GetStage' : self.processGetStage
         }
 
     def processChatMessage(self, msg):
@@ -21,6 +23,9 @@ class ServerReplyProcess:
 
     def processListPlayer(self, msg):
         self.players = [u for u in msg]
+    
+    def processGetStage(self, msg):
+        self.stage = msg
 
     def process(self, reply):
         if reply['type'] == 'd' or reply['type'] == 'r':
