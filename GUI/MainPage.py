@@ -2,7 +2,6 @@ import json.tool
 import sys
 import socket
 import threading
-import psutil
 import time
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QTextEdit,
@@ -17,6 +16,8 @@ from core.StringParser import JsonParser
 from core.ServerReplyProcess import ServerReplyProcess
 from core.ReplayPackger import replayPacker
 from core.test import TimerManager, FSMActuator
+from core.fsm_engine import FSMEngine
+from core.socket_service import socket_service
 #from core.test import 
 serverReplyProcess = ServerReplyProcess()
 rpPacker = replayPacker()
@@ -34,6 +35,8 @@ class MainPage(QWidget):
         super().__init__()
         self.switch_callback = switch_callback
         self.TestClick:bool = False
+        self.task_running:bool = False
+        self.task_start_ms:int = 0
         global tm
         global fsm
         layout = QVBoxLayout()
@@ -91,6 +94,9 @@ class MainPage(QWidget):
 
         layout.addWidget(splitter)
 
+        # ===== FSM 引擎与条件注册表 =====
+        self._load_and_init_fsm()
+
     def connect_terminal(self):
         self.terminal.connect_to_server()
     def host_game(self):
@@ -112,13 +118,71 @@ class MainPage(QWidget):
     def clear_console(self):
         self.terminal.clear()
     def TestFunc(self):
-        print("Test")
-        self.TestClick = not self.TestClick
-        tm.start_timer("Test", 10*S2MS, fsm.TestFuncFSM, single_shot=True)
-        tm.start_timer("Test1",2*S2MS, fsm.TestFuncFSM)
-        print("当前定时器列表:", tm.list_timers())
-        print("Test 定时器是否活跃:", tm.is_timer_active("Test"))
-        tm.stop_timer("Test1")
+        # 将 Test 按钮用作演示：第一次点击开始任务计时；第二次点击结束并评估条件推进状态与发送命令
+        import time
+        if not self.task_running:
+            self.task_running = True
+            self.TestClick = True
+            self.task_start_ms = int(time.time() * 1000)
+            # 确保 socket 已连接
+            if not socket_service.is_connected():
+                socket_service.connect()
+            # 启动 FSM 到一个起始状态（若 JSON 未指定，可选择 "1"）
+            if self.fsm_engine:
+                start_key = next(iter(self.fsm_engine.state_by_key.keys()), None)
+                if start_key:
+                    self.fsm_engine.start(start_key)
+            self.terminal.append_output("[Demo] 任务开始，已启动计时器")
+        else:
+            self.task_running = False
+            self.TestClick = False
+            end_ms = int(time.time() * 1000)
+            elapsed = end_ms - self.task_start_ms
+            context = {
+                "elapsed_ms": elapsed,
+                "server_ready": True,
+                "players": len(serverReplyProcess.players),
+            }
+            step_result = self.fsm_engine.step(context) if self.fsm_engine else None
+            if step_result:
+                next_key, actuator_cmd = step_result
+                self.terminal.append_output(f"[Demo] 任务结束，耗时 {elapsed} ms → 跳转状态 {next_key}")
+                if actuator_cmd:
+                    socket_service.send_command(actuator_cmd)
+                    self.terminal.append_output(f"> {actuator_cmd}")
+            else:
+                self.terminal.append_output(f"[Demo] 任务结束，耗时 {elapsed} ms，无可用转移")
+
+    def _load_and_init_fsm(self):
+        # 尝试从 state_machine1.json 加载；若失败则使用空列表
+        import os, json
+        self.fsm_engine = None
+        states = []
+        json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "state_machine1.json")
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                states = data.get("StateMachine", [])
+        except Exception:
+            states = []
+
+        # 条件注册表：可根据上下文评估计时器与其他条件
+        def elapsed_ge_5s(ctx: dict) -> bool:
+            return int(ctx.get("elapsed_ms", 0)) >= 5000
+
+        def server_ready(ctx: dict) -> bool:
+            return bool(ctx.get("server_ready", False))
+
+        def players_ge_1(ctx: dict) -> bool:
+            return int(ctx.get("players", 0)) >= 1
+
+        condition_registry = {
+            "elapsed_ge_5s": elapsed_ge_5s,
+            "server_ready": server_ready,
+            "players_ge_1": players_ge_1,
+        }
+
+        self.fsm_engine = FSMEngine(states, condition_registry)
 # ========== Terminal 组件（不变） ==========
 class TerminalWidget(QWidget):
     def __init__(self):
@@ -138,8 +202,9 @@ class TerminalWidget(QWidget):
         self.layout.addWidget(self.input)
 
         self.input.installEventFilter(self)
-        
-        self.socket_worker = SocketWorker()
+
+        # 使用全局 SocketService 的 worker，保持属性名不变以兼容其他代码
+        self.socket_worker = socket_service.worker
         self.socket_worker.message_received.connect(self.onReceive)
         self.socket_worker.debug_received.connect(self.append_output)
         #self.socket_worker.message_received.connect(JsonParser.test)
@@ -171,14 +236,14 @@ class TerminalWidget(QWidget):
         self.output.append(text)
     
     def connect_to_server(self):
-        self.socket_worker.connect_socket()
+        socket_service.connect()
 
     def send_command_api(self, command:str, auto=False):
         # Avoid repeated auto command
         if auto and self.auto_command:
             return
         self.auto_command = auto
-        self.socket_worker.send_command(command)
+        socket_service.send_command(command)
         if not auto:
             self.output.append(f"> {command}")
     
@@ -246,7 +311,7 @@ class DashboardWidget(QWidget):
         combo_layout.addStretch()
 
         # Checkboxes
-        self.check1 = QCheckBox("Enable Feature X")
+        self.check1 = QCheckBox("Auto get stage")
         self.check2 = QCheckBox("Auto-refresh")
         check_layout = QHBoxLayout()
         check_layout.addWidget(self.check1)

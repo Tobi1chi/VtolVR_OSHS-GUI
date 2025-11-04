@@ -3,7 +3,8 @@ import json
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                              QLabel, QListWidget, QLineEdit, QComboBox,
                              QTextEdit, QFileDialog, QMessageBox, QGroupBox,
-                             QFormLayout, QFrame, QScrollArea, QSizePolicy)
+                             QFormLayout, QFrame, QScrollArea, QSizePolicy,
+                             QTableWidget, QTableWidgetItem, QHeaderView, QCheckBox, QDialog)
 from PyQt6.QtCore import Qt, QRegularExpression
 from PyQt6.QtGui import QFont, QRegularExpressionValidator
 from PyQt6.QtGui import QPalette  # 导入 QPalette
@@ -106,59 +107,68 @@ class StateMachineEditorPage(QWidget):
         self.map_name_input.setPlaceholderText("Selected Map Name (Mission ID)")
         self.map_name_input.setReadOnly(True)
 
-        # Entry Condition
-        self.entry_cond_input = QLineEdit()
-        self.entry_cond_input.setPlaceholderText("Enter entry condition number")
-
         form_layout.addRow("Key (Auto):", self.key_input)
         form_layout.addRow("Search Campaign:", self.campaign_search_input)
         form_layout.addRow("Search Results:", self.search_results_list)  # Search Results 现在占用更多空间
         form_layout.addRow("Campaign Name:", self.campaign_name_input)
         form_layout.addRow("Campaign ID (WS ID):", self.campaign_id_input)
         form_layout.addRow("Map Name (Mission ID):", self.map_name_input)
-        form_layout.addRow("Entry Condition:", self.entry_cond_input)
 
-        # Condition Functions (扩大)
-        condition_funcs_label = QLabel("Condition Functions:")
-        condition_funcs_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-        self.condition_funcs_input = QTextEdit()
-        self.condition_funcs_input.setPlaceholderText("Enter condition functions here...")
 
-        # Linked States as Tags
-        linked_states_label = QLabel("Linked States (Tags - Numbers Only):")
-        linked_states_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
-
-        # 使用一个滚动区域来容纳动态添加的标签
-        self.linked_states_scroll_area = QScrollArea()
-        self.linked_states_scroll_area.setWidgetResizable(True)
-        self.linked_states_container = QWidget()
-        self.linked_states_scroll_area.setWidget(self.linked_states_container)
-        self.linked_states_layout = QHBoxLayout(self.linked_states_container)
-        self.linked_states_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        # self.linked_states_scroll_area.setMaximumHeight(100) # 移除最大高度限制
-
-        # 添加 Linked State 的输入框和按钮 (只允许数字输入)
-        self.add_linked_state_input = QLineEdit()
-        self.add_linked_state_input.setPlaceholderText("Enter Linked State Key (Number)")
-        # 设置验证器，只允许数字
-        validator = QRegularExpressionValidator(QRegularExpression(r"^\d*$"), self.add_linked_state_input)
-        self.add_linked_state_input.setValidator(validator)
-
-        add_linked_state_btn = QPushButton("Add Tag")
-        add_linked_state_btn.clicked.connect(self.add_linked_state_tag)
-
-        # 将表单和扩展区域添加到 details_layout
+        # 将表单添加到 details_layout
         details_layout.addLayout(form_layout)
-        details_layout.addWidget(condition_funcs_label)
-        details_layout.addWidget(self.condition_funcs_input)
-        details_layout.addWidget(linked_states_label)
-        details_layout.addWidget(self.linked_states_scroll_area)
+        # 删除 Legacy Linked State 区域（不再需要）
 
-        # 将输入框和按钮放在标签下方
-        add_tag_layout = QHBoxLayout()
-        add_tag_layout.addWidget(self.add_linked_state_input)
-        add_tag_layout.addWidget(add_linked_state_btn)
-        details_layout.addLayout(add_tag_layout)
+        # Transitions 编辑区
+        transitions_label = QLabel("Transitions (ordered conditions):")
+        transitions_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+        self.docs_help_btn = QPushButton("?")
+        self.docs_help_btn.setFixedWidth(28)
+        self.docs_help_btn.clicked.connect(self.show_fsm_docs)
+
+        self.transitions_table = QTableWidget(0, 4)
+        self.transitions_table.setHorizontalHeaderLabels(["Target Key", "Condition", "Else", "Actuator Cmd"])
+        header = self.transitions_table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+
+        trans_btn_layout = QHBoxLayout()
+        add_trans_btn = QPushButton("Add Transition")
+        remove_trans_btn = QPushButton("Remove Selected")
+        add_trans_btn.clicked.connect(self.add_transition_row)
+        remove_trans_btn.clicked.connect(self.remove_selected_transition_rows)
+        trans_btn_layout.addWidget(add_trans_btn)
+        trans_btn_layout.addWidget(remove_trans_btn)
+        trans_btn_layout.addStretch()
+
+        trans_header_layout = QHBoxLayout()
+        trans_header_layout.addWidget(transitions_label)
+        trans_header_layout.addStretch()
+        trans_header_layout.addWidget(self.docs_help_btn)
+
+        details_layout.addLayout(trans_header_layout)
+        details_layout.addWidget(self.transitions_table)
+        details_layout.addLayout(trans_btn_layout)
+
+        # Transitions 文本编辑（适合长命令）
+        transitions_text_label = QLabel("Transitions Text (JSON array):")
+        transitions_text_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+        self.transitions_text = QTextEdit()
+        self.transitions_text.setPlaceholderText('[{"to":"2","cond":"elapsed_ge_5s","actuator_cmd":"start_next"}, {"to":"3","else":true}]')
+        sync_btns_layout = QHBoxLayout()
+        btn_fill_from_table = QPushButton("Fill from Table")
+        btn_apply_to_table = QPushButton("Apply to Table")
+        btn_fill_from_table.clicked.connect(self.sync_transitions_text_from_table)
+        btn_apply_to_table.clicked.connect(self.apply_transitions_text_to_table)
+        sync_btns_layout.addWidget(btn_fill_from_table)
+        sync_btns_layout.addWidget(btn_apply_to_table)
+        sync_btns_layout.addStretch()
+
+        details_layout.addWidget(transitions_text_label)
+        details_layout.addWidget(self.transitions_text)
+        details_layout.addLayout(sync_btns_layout)
 
         # 保存/取消按钮
         button_layout = QHBoxLayout()
@@ -191,6 +201,10 @@ class StateMachineEditorPage(QWidget):
         layout.addLayout(main_content_layout)
         layout.addLayout(back_btn_layout)
 
+        # 文档加载
+        self.fsm_docs = {"conditions": [], "commands": []}
+        self.load_fsm_docs()
+
     def load_map_info(self):
         """从 JSON 文件加载地图信息数据"""
         try:
@@ -203,6 +217,103 @@ class StateMachineEditorPage(QWidget):
         except json.JSONDecodeError:
             print(f"Error: Could not decode JSON from '{MAP_INFO_FILE}'.")
             self.map_info_data = {}
+
+    def load_fsm_docs(self):
+        """加载 FSM 可用条件与指令文档（可选）"""
+        import os
+        docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "core", "fsm_docs.json")
+        try:
+            with open(docs_path, 'r', encoding='utf-8') as f:
+                self.fsm_docs = json.load(f)
+        except Exception:
+            self.fsm_docs = {"conditions": [], "commands": []}
+
+    def show_fsm_docs(self):
+        """弹窗显示可用条件与指令文档"""
+        fields = self.fsm_docs.get("fields", [])
+        order = self.fsm_docs.get("evaluation_order", [])
+        syntax = self.fsm_docs.get("syntax", {})
+        conds = self.fsm_docs.get("conditions", [])
+        cmds = self.fsm_docs.get("commands", [])
+        examples = self.fsm_docs.get("transition_examples", [])
+
+        lines = []
+        if fields:
+            lines.append("字段说明 (Transition fields):")
+            for f in fields:
+                lines.append(f" - {f.get('name','')} ({f.get('type','')}): {f.get('desc','')}")
+            lines.append("")
+
+        if order:
+            lines.append("评估顺序 (Evaluation Order):")
+            for step in order:
+                lines.append(f" - {step}")
+            lines.append("")
+
+        if syntax:
+            lines.append("逻辑表达式语法 (cond_expr):")
+            ops = syntax.get("operators", [])
+            if ops:
+                lines.append(f" - 运算符: {', '.join(ops)}")
+            paren = syntax.get("parentheses")
+            if paren:
+                lines.append(f" - 括号: {paren}")
+            prec = syntax.get("precedence", [])
+            if prec:
+                lines.append(" - 优先级:")
+                for p in prec:
+                    lines.append(f"    * {p}")
+            ident = syntax.get("identifiers")
+            if ident:
+                lines.append(f" - 标识符: {ident}")
+            syn_examples = syntax.get("examples", [])
+            if syn_examples:
+                lines.append(" - 示例:")
+                for ex in syn_examples:
+                    lines.append(f"    * {ex}")
+            lines.append("")
+
+        if conds:
+            lines.append("可用条件 (Conditions):")
+            for c in conds:
+                lines.append(f" - {c.get('name','')}：{c.get('desc','')}")
+            lines.append("")
+
+        if cmds:
+            lines.append("可用指令 (Actuator Cmds):")
+            for c in cmds:
+                lines.append(f" - {c.get('name','')}：{c.get('desc','')}")
+            lines.append("")
+
+        if examples:
+            lines.append("示例 (Transition Examples):")
+            for e in examples:
+                desc = e.get('desc','')
+                val = e.get('value', {})
+                try:
+                    val_json = json.dumps(val, ensure_ascii=False)
+                except Exception:
+                    val_json = str(val)
+                lines.append(f" - {desc}: {val_json}")
+            lines.append("")
+        # 使用可滚动、可调整大小的对话框显示长文本
+        dlg = QDialog(self)
+        dlg.setWindowTitle("FSM 文档")
+        v = QVBoxLayout(dlg)
+        text = QTextEdit(dlg)
+        text.setReadOnly(True)
+        text.setPlainText("\n".join(lines))
+        v.addWidget(text)
+        btns = QHBoxLayout()
+        close_btn = QPushButton("Close", dlg)
+        close_btn.clicked.connect(dlg.accept)
+        btns.addStretch()
+        btns.addWidget(close_btn)
+        v.addLayout(btns)
+        dlg.resize(600, 500)
+        dlg.exec()
+
+    # 移除 Legacy Linked State 切换（已废弃）
 
     def on_campaign_search_changed(self, text):
         """当搜索框内容改变时，更新搜索结果列表"""
@@ -250,8 +361,7 @@ class StateMachineEditorPage(QWidget):
                 self.config = data.get("config", [])
                 raw_states = data.get("StateMachine", [])
 
-                # 将原始状态数据转换为内部格式
-                # 内部格式：{"Key": ..., "campaign name": ..., "campaign id": ..., "mapname": ..., "Entry cond": ..., "Condition funcs": ..., "Linked State": [...]}
+                # 将原始状态数据转换为内部格式（已移除 Linked State）
                 self.states = raw_states
                 self.refresh_state_list()
                 print(f"State machine loaded from {file_path}")
@@ -301,9 +411,7 @@ class StateMachineEditorPage(QWidget):
             "campaign name": f"Campaign_{next_key}",
             "campaign id": "",
             "mapname": "",
-            "Entry cond": "0",
-            "Condition funcs": "",
-            "Linked State": []  # Linked State 现在是字符串列表
+            "Transitions": []
         }
         self.states.append(new_state)
         self.refresh_state_list()
@@ -346,11 +454,14 @@ class StateMachineEditorPage(QWidget):
         self.campaign_name_input.setText(state.get("campaign name", ""))
         self.campaign_id_input.setText(state.get("campaign id", ""))
         self.map_name_input.setText(state.get("mapname", ""))
-        self.entry_cond_input.setText(str(state.get("Entry cond", "0")))  # Entry cond 可能是数字，转为字符串
-        self.condition_funcs_input.setPlainText(state.get("Condition funcs", ""))
+        
 
-        # 填充 Linked States Tags
-        self.update_linked_state_tags(state.get("Linked State", []))
+        # 填充 Transitions
+        self.fill_transitions_table(state.get("Transitions", []))
+        try:
+            self.transitions_text.setPlainText(json.dumps(state.get("Transitions", []), indent=2, ensure_ascii=False))
+        except Exception:
+            self.transitions_text.setPlainText("")
 
     def clear_state_details(self):
         """清空右侧编辑区"""
@@ -358,16 +469,12 @@ class StateMachineEditorPage(QWidget):
         self.campaign_name_input.clear()
         self.campaign_id_input.clear()
         self.map_name_input.clear()
-        self.entry_cond_input.clear()
-        self.condition_funcs_input.clear()
+        
         self.search_results_list.clear()
         self.search_results = []
-        self.add_linked_state_input.clear()
-        # 清空标签
-        for i in reversed(range(self.linked_states_layout.count())):
-            widget = self.linked_states_layout.itemAt(i).widget()
-            if widget:
-                widget.setParent(None)
+        # 清空 Transitions 表与文本
+        self.transitions_table.setRowCount(0)
+        self.transitions_text.clear()
 
     def save_current_state(self):
         """保存当前在右侧编辑的状态"""
@@ -379,16 +486,19 @@ class StateMachineEditorPage(QWidget):
             state["campaign name"] = self.campaign_name_input.text().strip()
             state["campaign id"] = self.campaign_id_input.text().strip()
             state["mapname"] = self.map_name_input.text().strip()
-            state["Entry cond"] = self.entry_cond_input.text().strip()
-            state["Condition funcs"] = self.condition_funcs_input.toPlainText().strip()
+            
 
-            # 更新链接状态信息 (Linked State) 从标签中获取
-            linked_states = []
-            for i in range(self.linked_states_layout.count()):
-                widget = self.linked_states_layout.itemAt(i).widget()
-                if widget and hasattr(widget, 'linked_state_key'):
-                    linked_states.append(widget.linked_state_key)
-            state["Linked State"] = linked_states
+            # 保存 Transitions：优先解析文本，其次回退表格
+            text_val = self.transitions_text.toPlainText().strip()
+            parsed = None
+            if text_val:
+                try:
+                    parsed = json.loads(text_val)
+                    if not isinstance(parsed, list):
+                        parsed = None
+                except Exception:
+                    parsed = None
+            state["Transitions"] = parsed if parsed is not None else self.collect_transitions_from_table()
 
             # 刷新列表显示（如果 Campaign Name 改变了）
             self.refresh_state_list()
@@ -403,65 +513,103 @@ class StateMachineEditorPage(QWidget):
         """取消当前编辑，恢复到上次保存的状态"""
         self.on_state_selected()  # 重新加载当前选中状态的原始数据
 
-    def add_linked_state_tag(self):
-        """添加一个 Linked State Tag"""
-        linked_key = self.add_linked_state_input.text().strip()
-        if linked_key and not any(tag.linked_state_key == linked_key for tag in self.findChildren(TagLabel) if
-                                  hasattr(tag, 'linked_state_key')):
-            tag = TagLabel(linked_key, self.remove_linked_state_tag)
-            # 将 key 信息存储为标签对象的属性
-            tag.linked_state_key = linked_key
-            self.linked_states_layout.addWidget(tag)
-            self.add_linked_state_input.clear()
+    # Legacy Linked State 相关功能已移除
 
-    def update_linked_state_tags(self, linked_keys_list):
-        """根据给定的列表更新 Linked State Tags 显示"""
-        # 清空现有标签
-        for i in reversed(range(self.linked_states_layout.count())):
-            widget = self.linked_states_layout.itemAt(i).widget()
-            if widget:
-                widget.setParent(None)
+    # --- Transitions 编辑逻辑 ---
+    def add_transition_row(self):
+        row = self.transitions_table.rowCount()
+        self.transitions_table.insertRow(row)
+        # Target Key
+        self.transitions_table.setItem(row, 0, QTableWidgetItem(""))
+        # Condition
+        self.transitions_table.setItem(row, 1, QTableWidgetItem(""))
+        # Else (checkbox)
+        checkbox = QCheckBox()
+        checkbox.setChecked(False)
+        checkbox.setStyleSheet("margin-left: 8px; margin-right: 8px;")
+        self.transitions_table.setCellWidget(row, 2, checkbox)
+        # Actuator Cmd
+        self.transitions_table.setItem(row, 3, QTableWidgetItem(""))
 
-        # 重新添加标签
-        for key in linked_keys_list:
-            tag = TagLabel(key, self.remove_linked_state_tag)
-            tag.linked_state_key = key
-            self.linked_states_layout.addWidget(tag)
+    def remove_selected_transition_rows(self):
+        selected = self.transitions_table.selectionModel().selectedRows()
+        for idx in sorted([i.row() for i in selected], reverse=True):
+            self.transitions_table.removeRow(idx)
 
-    def remove_linked_state_tag(self, tag_widget):
-        """移除指定的 Linked State Tag"""
-        tag_widget.setParent(None)
-        tag_widget.deleteLater()  # 确保对象被删除
+    def fill_transitions_table(self, transitions_list):
+        self.transitions_table.setRowCount(0)
+        if not transitions_list:
+            return
+        for t in transitions_list:
+            row = self.transitions_table.rowCount()
+            self.transitions_table.insertRow(row)
+            # Target Key
+            self.transitions_table.setItem(row, 0, QTableWidgetItem(str(t.get("to", ""))))
+            # Condition
+            self.transitions_table.setItem(row, 1, QTableWidgetItem(str(t.get("cond", ""))))
+            # Else
+            checkbox = QCheckBox()
+            checkbox.setChecked(bool(t.get("else", False)))
+            checkbox.setStyleSheet("margin-left: 8px; margin-right: 8px;")
+            self.transitions_table.setCellWidget(row, 2, checkbox)
+            # Actuator Cmd
+            self.transitions_table.setItem(row, 3, QTableWidgetItem(str(t.get("actuator_cmd", ""))))
+
+    def collect_transitions_from_table(self):
+        transitions = []
+        rows = self.transitions_table.rowCount()
+        for r in range(rows):
+            to_item = self.transitions_table.item(r, 0)
+            cond_item = self.transitions_table.item(r, 1)
+            checkbox = self.transitions_table.cellWidget(r, 2)
+            act_item = self.transitions_table.item(r, 3)
+
+            to_val = (to_item.text().strip() if to_item else "")
+            cond_val = (cond_item.text().strip() if cond_item else "")
+            act_val = (act_item.text().strip() if act_item else "")
+            else_val = bool(checkbox.isChecked()) if isinstance(checkbox, QCheckBox) else False
+
+            entry = {}
+            if to_val:
+                entry["to"] = to_val
+            if else_val:
+                entry["else"] = True
+            if cond_val:
+                entry["cond"] = cond_val
+            if act_val:
+                entry["actuator_cmd"] = act_val
+
+            if entry:
+                transitions.append(entry)
+        return transitions
+
+    # --- Transitions 文本区与表格同步 ---
+    def sync_transitions_text_from_table(self):
+        data = self.collect_transitions_from_table()
+        try:
+            self.transitions_text.setPlainText(json.dumps(data, indent=2, ensure_ascii=False))
+        except Exception:
+            self.transitions_text.setPlainText("")
+
+    def apply_transitions_text_to_table(self):
+        text_val = self.transitions_text.toPlainText().strip()
+        if not text_val:
+            return
+        try:
+            data = json.loads(text_val)
+            if isinstance(data, list):
+                self.fill_transitions_table(data)
+        except Exception as e:
+            QMessageBox.critical(self, "Invalid Transitions Text", f"JSON 解析失败:\n{e}")
 
 
 # --- 自定义标签组件 ---
 class TagLabel(QLabel):
-    def __init__(self, text, remove_callback):
-        super().__init__(text)
-        self.remove_callback = remove_callback
-        self.setStyleSheet(
-            "QLabel { "
-            "   background-color: #e0e0e0; "
-            "   border: 1px solid #a0a0a0; "
-            "   border-radius: 4px; "
-            "   padding: 2px 8px; "
-            "   margin: 2px; "
-            "} "
-            "QLabel:hover { "
-            "   background-color: #d0d0d0; "
-            "}"
-        )
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # 添加删除按钮
-        self.setFrameShape(QFrame.Shape.StyledPanel)
-        self.setLineWidth(1)
+    pass
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            # 调用父级的删除回调函数
-            self.remove_callback(self)
-        else:
-            super().mousePressEvent(event)
+
+    
+    
 
 
 # --- 示例用法 ---
