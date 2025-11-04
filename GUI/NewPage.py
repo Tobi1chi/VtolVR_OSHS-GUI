@@ -221,12 +221,27 @@ class StateMachineEditorPage(QWidget):
     def load_fsm_docs(self):
         """加载 FSM 可用条件与指令文档（可选）"""
         import os
-        docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "core", "fsm_docs.json")
+        docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "core", "FSM", "fsm_docs.json")
         try:
             with open(docs_path, 'r', encoding='utf-8') as f:
                 self.fsm_docs = json.load(f)
         except Exception:
             self.fsm_docs = {"conditions": [], "commands": []}
+        
+        # 从配置文件加载自定义命令
+        try:
+            from core.FSM.fsm_commands_config import get_commands_doc
+            custom_commands = get_commands_doc()
+            # 将自定义命令添加到文档中
+            if "commands" not in self.fsm_docs:
+                self.fsm_docs["commands"] = []
+            for cmd_name, cmd_desc in custom_commands.items():
+                # 检查是否已存在
+                existing = [c for c in self.fsm_docs["commands"] if c.get("name") == cmd_name]
+                if not existing:
+                    self.fsm_docs["commands"].append({"name": cmd_name, "desc": cmd_desc})
+        except ImportError:
+            pass  # 配置文件不存在，跳过
 
     def show_fsm_docs(self):
         """弹窗显示可用条件与指令文档"""

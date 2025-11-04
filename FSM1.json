@@ -1,0 +1,33 @@
+{
+    "config": [
+        "Default Package Name",
+        "Default Author"
+    ],
+    "StateMachine": [
+        {
+            "Key": "1",
+            "campaign name": "BVR Ocixem",
+            "campaign id": "2860956181",
+            "mapname": "BVR Ocixem",
+            "Transitions": [
+                {
+                    "to": "1",
+                    "actuator_cmd": "start_next"
+                }
+            ]
+        },
+        {
+            "Key": "2",
+            "campaign name": "BVR hMap2",
+            "campaign id": "2860956181",
+            "mapname": "BVR hMap2",
+            "Transitions": [
+                {
+                    "to": "1",
+                    "cond": "elapsed",
+                    "actuator_cmd": "start_next"
+                }
+            ]
+        }
+    ]
+}

@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QObject
-from core.SocketWorker import SocketWorker
+from core.Socket.SocketWorker import SocketWorker
 
 
 class SocketService(QObject):
@@ -28,4 +28,5 @@ class SocketService(QObject):
         self._worker.send_command(cmd)
 
 
-
+# 模块级单例
+socket_service = SocketService()

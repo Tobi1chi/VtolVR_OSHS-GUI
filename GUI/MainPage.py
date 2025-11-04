@@ -10,21 +10,21 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QObject, QTimer
 from PyQt6.QtGui import QFont
-from core.SocketWorker import SocketWorker
+from core.Socket import SocketWorker
+from core.Socket import socket_service
 from core.SysState import SysState
 from core.StringParser import JsonParser
 from core.ServerReplyProcess import ServerReplyProcess
 from core.ReplayPackger import replayPacker
-from core.test import TimerManager, FSMActuator
-from core.fsm_engine import FSMEngine
-from core.socket_service import socket_service
-#from core.test import 
+from core.Timer import TimerManager
+from core.FSM import FSMEngine
+from core.FSM import fsm_actuator
 serverReplyProcess = ServerReplyProcess()
 rpPacker = replayPacker()
 terminal = None
 
 tm = TimerManager()
-fsm = FSMActuator()
+# 旧的测试用 FSMActuator 已移除，现在使用 core.FSM.fsm_actuator
 #Private constants
 S2MS = 1000
 MIN2MS = 60 * S2MS
@@ -34,11 +34,8 @@ class MainPage(QWidget):
     def __init__(self, switch_callback):
         super().__init__()
         self.switch_callback = switch_callback
-        self.TestClick:bool = False
         self.task_running:bool = False
-        self.task_start_ms:int = 0
         global tm
-        global fsm
         layout = QVBoxLayout()
         self.setLayout(layout)
         # Top bar
@@ -119,11 +116,11 @@ class MainPage(QWidget):
         self.terminal.clear()
     def TestFunc(self):
         # 将 Test 按钮用作演示：第一次点击开始任务计时；第二次点击结束并评估条件推进状态与发送命令
-        import time
         if not self.task_running:
             self.task_running = True
             self.TestClick = True
-            self.task_start_ms = int(time.time() * 1000)
+            # 使用 TimerManager 启动任务计时器
+            tm.start_stopwatch("task_timer")
             # 确保 socket 已连接
             if not socket_service.is_connected():
                 socket_service.connect()
@@ -136,8 +133,10 @@ class MainPage(QWidget):
         else:
             self.task_running = False
             self.TestClick = False
-            end_ms = int(time.time() * 1000)
-            elapsed = end_ms - self.task_start_ms
+            # 使用 TimerManager 停止任务计时器并获取经过时间
+            elapsed = tm.stop_stopwatch("task_timer")
+            if elapsed is None:
+                elapsed = 0
             context = {
                 "elapsed_ms": elapsed,
                 "server_ready": True,
@@ -148,8 +147,12 @@ class MainPage(QWidget):
                 next_key, actuator_cmd = step_result
                 self.terminal.append_output(f"[Demo] 任务结束，耗时 {elapsed} ms → 跳转状态 {next_key}")
                 if actuator_cmd:
-                    socket_service.send_command(actuator_cmd)
-                    self.terminal.append_output(f"> {actuator_cmd}")
+                    # 使用 FSM Actuator 执行器处理 action
+                    success = fsm_actuator.execute(actuator_cmd, context)
+                    if success:
+                        self.terminal.append_output(f"> {actuator_cmd}")
+                    else:
+                        self.terminal.append_output(f"[错误] 执行 action '{actuator_cmd}' 失败")
             else:
                 self.terminal.append_output(f"[Demo] 任务结束，耗时 {elapsed} ms，无可用转移")
 
@@ -364,8 +367,7 @@ class DashboardWidget(QWidget):
         if self.stagestate:
             terminal.send_command_api("getstage", True)
             print(serverReplyProcess.stage)
-            fsm.TestFuncFSM()
-            print(fsm.counter)
+            # 旧的测试代码已移除
 
         if mode == "States":
             processName = "VTOLVR.exe"
