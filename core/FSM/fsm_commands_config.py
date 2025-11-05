@@ -8,7 +8,7 @@ FSM 指令配置文件
 3. 在 FSM JSON 的 actuator_cmd 字段中使用这些命令
 """
 
-from typing import Callable, Dict, Any, Optional
+from typing import Callable, Dict, Any, Optional, Tuple
 from core.Socket.socket_service import socket_service
 
 
@@ -26,6 +26,14 @@ CUSTOM_COMMANDS = {
     "restart": "重启游戏",
     "quit": "退出游戏",
     
+    # 从 Commands.txt 添加的命令
+    "sethost": "设置主机参数: sethost [name|password|uniticon|campaign|mission] <value>",
+    "checkhost": "检查当前主机设置",
+    "config": "配置多人游戏",
+    "listscene": "列出可用场景",
+    "sendlog": "发送日志消息到游戏: sendlog [message>",
+    "player": "列出连接的玩家",
+    
     # 自定义命令示例（需要注册处理器）
     # "custom:my_command": "自定义命令示例",
 }
@@ -33,15 +41,17 @@ CUSTOM_COMMANDS = {
 
 # ===== 自定义 Action 处理器 =====
 # 在这里定义你的自定义处理器函数
-# 函数签名: def handler_name(command: str, context: dict) -> None
+# 函数签名: def handler_name(command: str, context: dict) -> Optional[Dict[str, Any]]
 
-def log_action_handler(command: str, context: dict) -> None:
+def log_action_handler(command: str, context: dict) -> Optional[Dict[str, Any]]:
     """日志记录处理器示例"""
     print(f"[FSM Log] 执行命令: {command}")
     print(f"[FSM Log] 上下文: {context}")
+    # 可以返回结果到上下文
+    return {"logged_command": command}
 
 
-def custom_logic_handler(command: str, context: dict) -> None:
+def custom_logic_handler(command: str, context: dict) -> Optional[Dict[str, Any]]:
     """自定义逻辑处理器示例"""
     # 根据命令执行不同的逻辑
     if command == "my_command":
@@ -50,15 +60,17 @@ def custom_logic_handler(command: str, context: dict) -> None:
         # 例如：调用其他模块的函数
         # 例如：修改全局状态
         # 例如：触发事件
+        return {"result": "custom_command_executed"}
     else:
         print(f"未知的自定义命令: {command}")
+        return {"error": f"unknown_command: {command}"}
 
 
 # ===== 处理器注册映射 =====
 # 将自定义处理器注册到 action 类型
 # 格式: "action_prefix": handler_function
 # 在 JSON 中使用: {"actuator_cmd": "action_prefix:command"}
-CUSTOM_ACTION_HANDLERS: Dict[str, Callable[[str, dict], None]] = {
+CUSTOM_ACTION_HANDLERS: Dict[str, Callable[[str, dict], Optional[Dict[str, Any]]]] = {
     # 示例：注册 "log" 前缀的处理器
     # "log": log_action_handler,
     

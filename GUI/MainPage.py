@@ -148,9 +148,12 @@ class MainPage(QWidget):
                 self.terminal.append_output(f"[Demo] 任务结束，耗时 {elapsed} ms → 跳转状态 {next_key}")
                 if actuator_cmd:
                     # 使用 FSM Actuator 执行器处理 action
-                    success = fsm_actuator.execute(actuator_cmd, context)
+                    success, result = fsm_actuator.execute(actuator_cmd, context)
                     if success:
                         self.terminal.append_output(f"> {actuator_cmd}")
+                        # 如果有返回结果，也显示出来
+                        if result:
+                            self.terminal.append_output(f"返回结果: {result}")
                     else:
                         self.terminal.append_output(f"[错误] 执行 action '{actuator_cmd}' 失败")
             else:

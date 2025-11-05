@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Optional, Any
+from typing import Callable, Dict, Optional, Any, Union, Tuple
 from core.Socket.socket_service import socket_service
 
 # 导入配置文件
@@ -19,7 +19,7 @@ class FSMActuator:
     """
 
     def __init__(self):
-        self.action_registry: Dict[str, Callable[[str, dict], Any]] = {}
+        self.action_registry: Dict[str, Callable[[str, dict], Optional[Union[bool, Dict[str, Any]]]]] = {}
         self._register_default_actions()
         # 加载自定义命令配置
         register_custom_commands(self)
@@ -29,17 +29,17 @@ class FSMActuator:
         # 默认行为：将所有未注册的 action 当作 socket 命令发送
         self.register_action("socket", self._execute_socket_command)
 
-    def register_action(self, action_name: str, handler: Callable[[str, dict], Any]) -> None:
+    def register_action(self, action_name: str, handler: Callable[[str, dict], Optional[Union[bool, Dict[str, Any]]]]) -> None:
         """
         注册一个 action 处理器
         
         Args:
             action_name: action 名称（如 "socket", "custom_func"）
-            handler: 处理函数，接收 (command_str, context) 参数
+            handler: 处理函数，接收 (command_str, context) 参数，可返回结果字典
         """
         self.action_registry[action_name] = handler
 
-    def execute(self, actuator_cmd: str, context: Optional[dict] = None) -> bool:
+    def execute(self, actuator_cmd: str, context: Optional[dict] = None) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """
         执行 actuator_cmd
         
@@ -48,7 +48,7 @@ class FSMActuator:
             context: 可选的上下文信息（用于传递给自定义处理器）
         
         Returns:
-            是否执行成功
+            (是否执行成功, 执行结果（如果有）)
         
         支持的格式：
         1. 普通字符串（如 "start_next"）：作为 socket 命令发送
@@ -56,7 +56,7 @@ class FSMActuator:
         3. 自定义格式（如 "custom:func_name"）：使用注册的自定义处理器
         """
         if not actuator_cmd or not actuator_cmd.strip():
-            return False
+            return False, None
 
         context = context or {}
         cmd_str = actuator_cmd.strip()
@@ -70,20 +70,30 @@ class FSMActuator:
             handler = self.action_registry.get(prefix)
             if handler:
                 try:
-                    handler(command, context)
-                    return True
+                    result = handler(command, context)
+                    # 如果返回的是字典，则认为是执行结果
+                    if isinstance(result, dict):
+                        return True, result
+                    # 如果返回的是布尔值，则认为是执行状态
+                    elif isinstance(result, bool):
+                        return result, None
+                    # 其他情况认为执行成功但无返回值
+                    else:
+                        return True, None
                 except Exception as e:
                     print(f"[FSMActuator] 执行 action '{prefix}:{command}' 失败: {e}")
-                    return False
+                    return False, None
             else:
                 # 未找到处理器，回退到默认 socket 行为
                 print(f"[FSMActuator] 未找到 action 处理器 '{prefix}'，回退到 socket")
-                return self._execute_socket_command(cmd_str, context)
+                success = self._execute_socket_command(cmd_str, context)
+                return success, None
         else:
             # 无前缀，默认作为 socket 命令
-            return self._execute_socket_command(cmd_str, context)
+            success = self._execute_socket_command(cmd_str, context)
+            return success, None
 
-    def _execute_socket_command(self, command: str, context: dict) -> bool:
+    def _execute_socket_command(self, command: str, context: dict) -> Union[bool, Dict[str, Any]]:
         """执行 socket 命令（默认处理器）"""
         try:
             socket_service.send_command(command)
@@ -91,32 +101,3 @@ class FSMActuator:
         except Exception as e:
             print(f"[FSMActuator] 发送 socket 命令失败: {e}")
             return False
-
-
-# 全局单例
-fsm_actuator = FSMActuator()
-
-# ===== 使用示例 =====
-# 
-# 1. 默认使用（socket 命令）：
-#    actuator_cmd = "start_next"  # 直接作为 socket 命令发送
-#    fsm_actuator.execute(actuator_cmd)
-#
-# 2. 注册自定义 action 处理器：
-#    def my_custom_handler(command: str, context: dict):
-#        print(f"执行自定义命令: {command}")
-#        # 你的自定义逻辑
-#    
-#    fsm_actuator.register_action("custom", my_custom_handler)
-#    
-#    然后在 JSON 中使用：
-#    {"to": "2", "cond": "some_cond", "actuator_cmd": "custom:my_command"}
-#
-# 3. 在 MainPage 或其他地方初始化时注册：
-#    from core.FSM import fsm_actuator
-#    
-#    def log_action(command: str, context: dict):
-#        print(f"[日志] Action: {command}, Context: {context}")
-#    
-#    fsm_actuator.register_action("log", log_action)
-
