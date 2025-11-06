@@ -32,6 +32,8 @@ class FSMActuator(QObject):
         """注册默认的 action 处理器"""
         # 默认行为：将所有未注册的 action 当作 socket 命令发送
         self.register_action("socket", self._execute_socket_command)
+        # 注册init动作处理器
+        self.register_action("init", self._execute_init_action)
     
     def _register_delay_action(self):
         """注册延迟动作处理器"""
@@ -331,6 +333,55 @@ class FSMActuator(QObject):
                 success = self._execute_socket_command(cmd_str, context)
                 return success, None, False
 
+    def _execute_init_action(self, command: str, context: dict) -> Union[bool, Dict[str, Any]]:
+        """
+        执行初始化动作：根据campaign id和mapname自动配置并启动地图
+        
+        Args:
+            command: 格式为 "campaign_id,mapname"
+            context: 上下文字典
+        
+        Returns:
+            执行结果
+        """
+        try:
+            parts = command.split(',')
+            if len(parts) < 2:
+                print(f"[FSMActuator Init] 错误: init命令格式应为 'campaign_id,mapname'")
+                return False
+            
+            campaign_id = parts[0].strip()
+            mapname = parts[1].strip()
+            
+            # 执行配置命令序列（使用QTimer延迟发送，避免阻塞）
+            commands = [
+                f"sethost campaign {campaign_id}",
+                f"sethost mission {mapname}",
+                "config",
+                "host"
+            ]
+            
+            # 使用QTimer依次发送命令，每个命令间隔100ms
+            delay = 0
+            for i, cmd in enumerate(commands):
+                def make_sender(cmd_to_send):
+                    def send():
+                        socket_service.send_command(cmd_to_send)
+                    return send
+                
+                QTimer.singleShot(delay, make_sender(cmd))
+                delay += 100  # 每个命令间隔100ms
+            
+            return {
+                "ok": True,
+                "campaign_id": campaign_id,
+                "mapname": mapname,
+                "commands": commands
+            }
+        except Exception as e:
+            print(f"[FSMActuator Init] 执行init动作失败: {e}")
+            return False
+    
     def _execute_socket_command(self, command: str, context: dict) -> Union[bool, Dict[str, Any]]:
         """执行 socket 命令（默认处理器）"""
         try:

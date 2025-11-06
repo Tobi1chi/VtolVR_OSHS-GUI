@@ -99,6 +99,28 @@ class FSMEngine:
         if next_key is not None:
             self.current_key = str(next_key)
     
+    def get_state_entry_action(self, state_key: str) -> Optional[str]:
+        """
+        获取状态的Entry动作（如果存在）
+        
+        Args:
+            state_key: 状态 Key
+            
+        Returns:
+            Entry动作字符串，如果状态有campaign id和mapname，返回init动作
+        """
+        state = self.state_by_key.get(str(state_key))
+        if not state:
+            return None
+        
+        campaign_id = state.get("campaign id") or state.get("campaign_id")
+        mapname = state.get("mapname")
+        
+        if campaign_id and mapname:
+            return f"init:{campaign_id},{mapname}"
+        
+        return None
+    
     def _evaluate_condition(self, cond_expr: str, context: dict) -> bool:
         """
         评估单个条件表达式（支持函数调用）

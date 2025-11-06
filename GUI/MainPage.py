@@ -3,6 +3,7 @@ import sys
 import socket
 import threading
 import time
+import datetime
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QTextEdit,
     QHBoxLayout, QVBoxLayout, QSplitter, QComboBox, QCheckBox,
@@ -109,22 +110,55 @@ class MainPage(QWidget):
         
         # 初始化自动 FSM 检测定时器（默认关闭）
         self._init_auto_fsm_timer()
+        
+        # 初始化日志记录相关
+        self.current_session_id = None
+    
+    def _save_session_logs(self):
+        """
+        保存当前会话的日志（flightlog 和 debuglog）
+        """
+        global rpPacker
+        
+        # 如果 flightlog 不为空，保存它
+        if serverReplyProcess.flightlog:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"flightlog_{timestamp}.txt"
+            rpPacker.SaveFlightlog(serverReplyProcess.flightlog, filename)
+        
+        # 如果 debuglog 不为空，保存它
+        if serverReplyProcess.debuglog:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"debuglog_{timestamp}.txt"
+            rpPacker.SaveDebuglog(serverReplyProcess.debuglog, filename)
 
     def connect_terminal(self):
         self.terminal.connect_to_server()
     def host_game(self):
+        # 开始新一局前，保存上一局的日志
+        self._save_session_logs()
+        serverReplyProcess.clear_session_logs()
         self.terminal.send_command_api("host")
     def check_host(self):
         self.terminal.send_command_api("checkhost")
     def config_host(self):
         self.terminal.send_command_api("config")
     def start_game(self):
+        # 开始游戏前，保存上一局的日志
+        self._save_session_logs()
+        serverReplyProcess.clear_session_logs()
         self.terminal.send_command_api("start")
     def skip_game(self):
         self.terminal.send_command_api("skip")
     def restart_game(self):
+        # 重启前保存当前局的日志
+        self._save_session_logs()
+        serverReplyProcess.clear_session_logs()
         self.terminal.send_command_api("restart")
     def quit_game(self):
+        # 退出前保存当前局的日志
+        self._save_session_logs()
+        serverReplyProcess.clear_session_logs()
         self.terminal.send_command_api("quit")
     def quit_server(self):
         self.terminal.send_command_api("exitapp")
@@ -235,6 +269,18 @@ class MainPage(QWidget):
             if start_key:
                 self.fsm_engine.start(start_key)
                 self.terminal.append_output(f"[FSM] 状态机已启动，当前状态: {start_key}")
+                
+                # 执行初始状态的Entry动作（如果有）
+                entry_action = self.fsm_engine.get_state_entry_action(start_key)
+                if entry_action:
+                    self.terminal.append_output(f"[FSM] 执行初始状态 {start_key} 的Entry动作: {entry_action}")
+                    # 构建基本上下文
+                    context = {
+                        "server_ready": socket_service.is_connected(),
+                        "players": len(serverReplyProcess.players),
+                        "stage": serverReplyProcess.stage,
+                    }
+                    fsm_actuator.execute(entry_action, context)
     
     def load_fsm_config(self):
         """从文件对话框加载 FSM 配置文件"""
@@ -282,6 +328,12 @@ class MainPage(QWidget):
             def apply_transition():
                 self.fsm_engine.apply_transition(next_key)
                 self.terminal.append_output(f"[FSM] 状态转移完成: {current_key} -> {next_key}")
+                
+                # 执行新状态的Entry动作（如果有）
+                entry_action = self.fsm_engine.get_state_entry_action(next_key)
+                if entry_action:
+                    self.terminal.append_output(f"[FSM] 执行状态 {next_key} 的Entry动作: {entry_action}")
+                    fsm_actuator.execute(entry_action, context)
             
             if actuator_cmd:
                 # 执行 action，并传入完成回调
@@ -378,6 +430,12 @@ class MainPage(QWidget):
             def apply_transition():
                 self.fsm_engine.apply_transition(next_key)
                 self.terminal.append_output(f"[FSM Auto] 状态转移完成: {current_key} -> {next_key}")
+                
+                # 执行新状态的Entry动作（如果有）
+                entry_action = self.fsm_engine.get_state_entry_action(next_key)
+                if entry_action:
+                    self.terminal.append_output(f"[FSM Auto] 执行状态 {next_key} 的Entry动作: {entry_action}")
+                    fsm_actuator.execute(entry_action, context)
             
             if actuator_cmd:
                 # 执行 action，并传入完成回调
@@ -475,7 +533,6 @@ class DashboardWidget(QWidget):
         super().__init__()
         layout = QVBoxLayout()
         self.setLayout(layout)
-        self.stagestate:bool = False
         # Core utils
         self.stats = SysState()
 
@@ -530,11 +587,9 @@ class DashboardWidget(QWidget):
         combo_layout.addStretch()
 
         # Checkboxes
-        self.check1 = QCheckBox("Auto get stage")
-        self.check2 = QCheckBox("Auto-refresh")
+        self.check_auto_refresh = QCheckBox("Auto-refresh (All States)")
         check_layout = QHBoxLayout()
-        check_layout.addWidget(self.check1)
-        check_layout.addWidget(self.check2)
+        check_layout.addWidget(self.check_auto_refresh)
         check_layout.addStretch()
 
         # Assemble main layout
@@ -548,20 +603,34 @@ class DashboardWidget(QWidget):
         # Auto-refresh timer
         self.auto_refresh_timer = QTimer(self)
         self.auto_refresh_timer.timeout.connect(self._auto_refresh_display)
-        self.check2.stateChanged.connect(self._toggle_auto_refresh)
-        self.check1.stateChanged.connect(self._stagestate)
+        self.check_auto_refresh.stateChanged.connect(self._toggle_auto_refresh)
 
         # Initial display
         self.update_display("States")
 
     def _toggle_auto_refresh(self, state):
+        """切换自动刷新开关"""
         if state == Qt.CheckState.Checked.value:  # PyQt6
             self.auto_refresh_timer.start(1000)  # 1 second
         else:
             self.auto_refresh_timer.stop()
 
     def _auto_refresh_display(self):
-        # Determine current mode based on checked button
+        """
+        自动刷新显示：每次都获取所有状态信息（本地 socket，无网络开销）
+        """
+        global serverReplyProcess
+        global terminal
+        terminalAvail = (not terminal is None) and terminal.socket_worker.running
+        
+        if not terminalAvail:
+            return
+        
+        # 每次自动刷新都请求所有状态
+        serverReplyProcess.request_all_states()  # 请求 actors, players, stage
+        terminal.send_command_api("flightlog", auto=True)  # 请求 flightlog
+        
+        # 确定当前模式并更新显示
         if self.switch_btn1.isChecked():
             mode = "Player List"
         elif self.switch_btn2.isChecked():
@@ -576,15 +645,13 @@ class DashboardWidget(QWidget):
         self.update_display(mode)
 
     def update_display(self, mode):
+        """
+        更新显示内容（不主动请求数据，数据由自动刷新机制提供）
+        """
         global serverReplyProcess
         global terminal
         terminalAvail = (not terminal is None) and terminal.socket_worker.running
-        # Generate content based on mode
-        if self.stagestate:
-            terminal.send_command_api("getstage", True)
-            print(serverReplyProcess.stage)
-            # 旧的测试代码已移除
-
+        
         if mode == "States":
             processName = "VTOLVR.exe"
             mem = self.stats.memory
@@ -609,15 +676,20 @@ class DashboardWidget(QWidget):
                 f"    - {serverReplyProcess.lastState}"
             )
         elif mode == "Player List":
-            content = "Player List\n" + "\n".join(serverReplyProcess.players)
-            if terminalAvail:
-                terminal.send_command_api("player", auto=True)
+            if serverReplyProcess.players:
+                content = "Player List\n" + "\n".join(serverReplyProcess.players)
+            else:
+                content = "Player List\n(暂无玩家数据，等待自动刷新...)"
         elif mode == "Actor List":
-            content = "Actor List\n" + "\n".join([str(u) for u in serverReplyProcess.actors])
-            if terminalAvail:
-                terminal.send_command_api("list all", auto=True)
+            if serverReplyProcess.actors:
+                content = "Actor List\n" + "\n".join([str(u) for u in serverReplyProcess.actors])
+            else:
+                content = "Actor List\n(暂无 Actor 数据，等待自动刷新...)"
         elif mode == "Flight Logs":
-            content = "Flight Logs\n" + "\n".join(serverReplyProcess.logs)
+            if serverReplyProcess.flightlog:
+                content = "Flight Logs\n" + "\n".join(serverReplyProcess.flightlog)
+            else:
+                content = "Flight Logs\n(暂无日志数据，等待自动刷新...)"
         else:
             content = "Unknown mode"
 
@@ -627,6 +699,4 @@ class DashboardWidget(QWidget):
         self.display_area.setText(content)
         self.display_area.verticalScrollBar().setValue(scrollbarpos)
 
-    def _stagestate(self):
-        self.stagestate = not self.stagestate
 
