@@ -31,9 +31,13 @@
   },
   "conditions": [
     { "name": "elapsed_ge_5s", "desc": "任务耗时 >= 5 秒" },
+    { "name": "elapsed_ge_10s", "desc": "任务耗时 >= 10 秒" },
     { "name": "server_ready", "desc": "服务器就绪（示例上下文布尔值）" },
-    { "name": "players_ge_1", "desc": "玩家数量 >= 1（示例）" }
+    { "name": "players_ge_1", "desc": "玩家数量 >= 1（示例）" },
+    { "name": "players_ge_8", "desc": "玩家数量 >= 8（示例）" },
+    { "name": "stage_equals", "desc": "当前阶段等于指定值（需要 context['stage'] 和 context['target_stage']）" }
   ],
+  "unified_functions_note": "所有函数定义在 core/FSM/fsm_functions_config.py 中，可以同时作为条件和动作使用",
   "commands": [
     { "name": "start_next", "desc": "进入下一环节/任务" },
     { "name": "fallback", "desc": "条件未命中时的兜底指令" },

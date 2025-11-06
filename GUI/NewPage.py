@@ -228,18 +228,24 @@ class StateMachineEditorPage(QWidget):
         except Exception:
             self.fsm_docs = {"conditions": [], "commands": []}
         
-        # 从配置文件加载自定义命令
+        # 从统一函数配置加载（可以同时作为条件和动作）
         try:
-            from core.FSM.fsm_commands_config import get_commands_doc
-            custom_commands = get_commands_doc()
-            # 将自定义命令添加到文档中
+            from core.FSM.fsm_functions_config import get_functions_doc
+            unified_functions = get_functions_doc()
+            # 将统一函数添加到条件和命令文档中
+            if "conditions" not in self.fsm_docs:
+                self.fsm_docs["conditions"] = []
             if "commands" not in self.fsm_docs:
                 self.fsm_docs["commands"] = []
-            for cmd_name, cmd_desc in custom_commands.items():
-                # 检查是否已存在
-                existing = [c for c in self.fsm_docs["commands"] if c.get("name") == cmd_name]
-                if not existing:
-                    self.fsm_docs["commands"].append({"name": cmd_name, "desc": cmd_desc})
+            for func_name, func_desc in unified_functions.items():
+                # 添加到条件列表
+                existing_cond = [c for c in self.fsm_docs["conditions"] if c.get("name") == func_name]
+                if not existing_cond:
+                    self.fsm_docs["conditions"].append({"name": func_name, "desc": f"{func_desc}（统一函数，也可作为动作）"})
+                # 添加到命令列表
+                existing_cmd = [c for c in self.fsm_docs["commands"] if c.get("name") == f"func:{func_name}"]
+                if not existing_cmd:
+                    self.fsm_docs["commands"].append({"name": f"func:{func_name}", "desc": f"{func_desc}（统一函数，也可作为条件）"})
         except ImportError:
             pass  # 配置文件不存在，跳过
 
