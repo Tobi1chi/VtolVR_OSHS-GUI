@@ -10,6 +10,58 @@ except ImportError:
 ConditionFunc = Callable[[dict], bool]
 
 
+class FSMGlobalValues:
+    """
+    Global value container for FSM.
+    - Keys are defined statically from configuration.
+    - Runtime modifications are limited to predefined keys.
+    """
+
+    def __init__(self, initial: Optional[Dict[str, Any]] = None):
+        initial = dict(initial or {})
+        self._initial_values: Dict[str, Any] = initial
+        self._values: Dict[str, Any] = dict(initial)
+        self._allowed_keys = set(initial.keys())
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self._values.get(key, default)
+
+    def set(self, key: str, value: Any) -> Any:
+        if key not in self._allowed_keys:
+            raise KeyError(f"Global value '{key}' is not defined in configuration")
+        self._values[key] = value
+        return value
+
+    def __getitem__(self, key: str) -> Any:
+        if key not in self._allowed_keys:
+            raise KeyError(f"Global value '{key}' is not defined in configuration")
+        return self._values[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.set(key, value)
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._allowed_keys
+
+    def keys(self):
+        return self._allowed_keys.copy()
+
+    def items(self):
+        return self._values.items()
+
+    def values(self):
+        return self._values.values()
+
+    def to_dict(self) -> Dict[str, Any]:
+        return dict(self._values)
+
+    def reset(self) -> None:
+        self._values = dict(self._initial_values)
+
+    def __repr__(self) -> str:
+        return f"FSMGlobalValues({self._values!r})"
+
+
 class FSMEngine:
     """
     Lightweight Finite State Machine Engine:
@@ -20,19 +72,35 @@ class FSMEngine:
     - `step(context)` evaluates conditions in order, if matched, transitions and returns (next_key, actuator_cmd).
     """
 
-    def __init__(self, states: List[dict], condition_registry: Dict[str, ConditionFunc]):
+    def __init__(
+        self,
+        states: List[dict],
+        condition_registry: Dict[str, ConditionFunc],
+        global_values: Optional[Dict[str, Any]] = None,
+    ):
         self.state_by_key: Dict[str, dict] = {str(s.get("Key")): s for s in states}
         self.condition_registry: Dict[str, ConditionFunc] = condition_registry
         self.current_key: Optional[str] = None
+        self.global_values = FSMGlobalValues(global_values or {})
 
     def start(self, start_key: str) -> None:
         self.current_key = str(start_key) if start_key is not None else None
 
     def reset(self) -> None:
         self.current_key = None
+        self.global_values.reset()
 
     def get_current(self) -> Optional[str]:
         return self.current_key
+
+    def get_start_key(self) -> Optional[str]:
+        return next(iter(self.state_by_key.keys()), None)
+
+    def get_global_value(self, key: str, default: Any = None) -> Any:
+        return self.global_values.get(key, default)
+
+    def set_global_value(self, key: str, value: Any) -> Any:
+        return self.global_values.set(key, value)
 
     def step(self, context: dict) -> Optional[Tuple[str, Optional[str]]]:
         if self.current_key is None:

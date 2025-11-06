@@ -1,5 +1,5 @@
 # FSM Module Exports
-from core.FSM.fsm_engine import FSMEngine, ConditionFunc
+from core.FSM.fsm_engine import FSMEngine, ConditionFunc, FSMGlobalValues
 from core.FSM.fsm_actuator import FSMActuator, fsm_actuator
 
 # Import unified function configuration
@@ -21,5 +21,14 @@ def get_default_condition_registry():
     return UNIFIED_FUNCTIONS.copy()
 
 
-__all__ = ['FSMEngine', 'ConditionFunc', 'FSMActuator', 'fsm_actuator', 'get_default_condition_registry', 'UNIFIED_FUNCTIONS', 'get_functions_doc']
+__all__ = [
+    'FSMEngine',
+    'ConditionFunc',
+    'FSMActuator',
+    'fsm_actuator',
+    'get_default_condition_registry',
+    'UNIFIED_FUNCTIONS',
+    'get_functions_doc',
+    'FSMGlobalValues',
+]
 

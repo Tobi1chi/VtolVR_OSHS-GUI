@@ -4,6 +4,8 @@ import socket
 import threading
 import time
 import datetime
+import uuid
+from typing import Optional, Dict, Any
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QTextEdit,
     QHBoxLayout, QVBoxLayout, QSplitter, QComboBox, QCheckBox,
@@ -21,6 +23,7 @@ from core.Timer import TimerManager
 from core.FSM import FSMEngine
 from core.FSM import fsm_actuator
 from core.FSM import get_default_condition_registry
+from core.DB import flightlog_repository
 serverReplyProcess = ServerReplyProcess()
 rpPacker = replayPacker()
 terminal = None
@@ -39,16 +42,27 @@ class MainPage(QWidget):
         self.task_running:bool = False
         self.auto_fsm_enabled: bool = False
         self.auto_fsm_timer = None
+        self.fsm_engine = None
+        self._fsm_started = False
+        self.fsm_json_path: Optional[str] = None
         global tm
         layout = QVBoxLayout()
         self.setLayout(layout)
         # Top bar
         top_bar = QHBoxLayout()
-        buttons = ["Connect", "Clear", "Check Host", "Config Host", "Host", "Start", "Skip", "Restart", "Quit", "Quit Server"]
-        buttons.append("Test")
-        buttons.append("Load FSM")
-        buttons.append("Run FSM")
-        buttons.append("Auto FSM")
+        buttons = [
+            "Connect",
+            "Clear",
+            "Check Host",
+            "Config Host",
+            "Host",
+            "Start",
+            "Skip",
+            "Restart",
+            "Quit",
+            "Quit Server",
+            "Test",
+        ]
         for name in buttons:
             btn = QPushButton(name)
             if name == "Quit":
@@ -73,13 +87,6 @@ class MainPage(QWidget):
                 btn.clicked.connect(self.clear_console)
             elif name == "Test":
                 btn.clicked.connect(self.TestFunc)
-            elif name == "Load FSM":
-                btn.clicked.connect(self.load_fsm_config)
-            elif name == "Run FSM":
-                btn.clicked.connect(self.run_fsm_step)
-            elif name == "Auto FSM":
-                btn.setCheckable(True)
-                btn.clicked.connect(self.toggle_auto_fsm)
             top_bar.addWidget(btn)
 
         self.switch_btn = QPushButton("Mission Editor")
@@ -94,10 +101,19 @@ class MainPage(QWidget):
 
         # Left: Terminal
         self.terminal = TerminalWidget()
+        self.terminal.set_local_actuator_executor(self._execute_local_actuator_command)
         global terminal
         terminal = self.terminal
         # Right: Dashboard
-        self.dashboard = DashboardWidget(self.terminal)
+        self.dashboard = DashboardWidget(
+            self.terminal,
+            load_fsm_callback=self.load_fsm_config,
+            run_fsm_callback=self.run_fsm_step,
+            toggle_auto_fsm_callback=self.toggle_auto_fsm,
+            auto_fsm_state_provider=lambda: self.auto_fsm_enabled,
+        )
+        self.dashboard.set_auto_fsm_checked(self.auto_fsm_enabled)
+        self.dashboard.set_fsm_controls_enabled(False)
 
         splitter.addWidget(self.terminal)
         splitter.addWidget(self.dashboard)
@@ -105,14 +121,98 @@ class MainPage(QWidget):
 
         layout.addWidget(splitter)
 
-        # ===== FSM Engine and Condition Registry =====
-        self._load_and_init_fsm()
-        
         # Initialize auto FSM detection timer (disabled by default)
         self._init_auto_fsm_timer()
         
         # Initialize log recording related
         self.current_session_id = None
+
+    def _build_fsm_context(self, include_elapsed: bool = True) -> Dict[str, Any]:
+        """
+        Assemble runtime context for FSM evaluation and actuator execution.
+        """
+        elapsed_ms = 0
+        if include_elapsed:
+            if tm.is_stopwatch_running("task_timer"):
+                elapsed = tm.get_elapsed_time("task_timer")
+                elapsed_ms = int(elapsed) if elapsed is not None else 0
+        context: Dict[str, Any] = {
+            "elapsed_ms": elapsed_ms,
+            "server_ready": socket_service.is_connected(),
+            "players": len(serverReplyProcess.players),
+            "stage": serverReplyProcess.stage,
+            "mission_status": getattr(serverReplyProcess, 'mission_status', 'Running'),
+        }
+        if self.fsm_engine:
+            context["global_values"] = self.fsm_engine.global_values
+            context["fsm_engine"] = self.fsm_engine
+        return context
+
+    def _execute_local_actuator_command(self, command: str):
+        """
+        Execute actuator command locally without socket transmission.
+        """
+        command = (command or "").strip()
+        if not command:
+            return False, None
+        if not self.fsm_engine:
+            self.terminal.append_output("[Actuator] 请先加载FSM配置文件")
+            return False, None
+
+        context = self._build_fsm_context()
+        try:
+            success, result, has_delay = fsm_actuator.execute(command, context)
+        except Exception as exc:
+            self.terminal.append_output(f"[Actuator] 执行 '{command}' 失败: {exc}")
+            return False, None
+
+        if success:
+            self.terminal.append_output(f"[Actuator] 已执行本地指令: {command}")
+            if result:
+                self.terminal.append_output(f"[Actuator] 返回值: {result}")
+            if has_delay:
+                self.terminal.append_output("[Actuator] 延迟操作已安排，完成后自动回调")
+        else:
+            self.terminal.append_output(f"[Actuator] 本地指令执行失败: {command}")
+        return success, result
+
+    def _ensure_fsm_started(self, trigger: str = "Manual") -> bool:
+        """
+        Ensure FSM has started before executing steps or auto checks.
+        """
+        if not self.fsm_engine:
+            self.terminal.append_output("[FSM] Error: 尚未加载FSM配置文件")
+            return False
+
+        current_key = self.fsm_engine.get_current()
+        if current_key is not None:
+            return True
+
+        start_key = self.fsm_engine.get_start_key()
+        if not start_key:
+            self.terminal.append_output("[FSM] Error: State machine has no states")
+            return False
+
+        self.fsm_engine.start(start_key)
+        self._fsm_started = True
+        self.terminal.append_output(f"[FSM] State machine started ({trigger}), current state: {start_key}")
+
+        entry_action = self.fsm_engine.get_state_entry_action(start_key)
+        if entry_action:
+            self.terminal.append_output(f"[FSM] Executing state {start_key} Entry action: {entry_action}")
+            context = self._build_fsm_context()
+            try:
+                success, result, has_delay = fsm_actuator.execute(entry_action, context)
+                if success and result:
+                    self.terminal.append_output(f"[FSM] Entry action result: {result}")
+                if success and has_delay:
+                    self.terminal.append_output("[FSM] Entry action has delay, waiting for completion...")
+                if not success:
+                    self.terminal.append_output(f"[FSM] Error: Entry action '{entry_action}' execution failed")
+            except Exception as exc:
+                self.terminal.append_output(f"[FSM] Entry action执行异常: {exc}")
+
+        return True
     
     def _save_session_logs(self):
         """
@@ -125,6 +225,50 @@ class MainPage(QWidget):
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"flightlog_{timestamp}.txt"
             rpPacker.SaveFlightlog(serverReplyProcess.flightlog, filename)
+
+            session_uuid = self.current_session_id or str(uuid.uuid4())
+            state_key = self.fsm_engine.get_current() if self.fsm_engine else None
+            state_meta = (
+                self.fsm_engine.state_by_key.get(state_key, {})
+                if self.fsm_engine and state_key
+                else {}
+            )
+
+            metadata = {
+                "session_uuid": session_uuid,
+                "stage": getattr(serverReplyProcess, "stage", None) or None,
+                "state_key": state_key,
+                "map_name": state_meta.get("mapname") or state_meta.get("map_name"),
+                "campaign_name": state_meta.get("campaign name")
+                or state_meta.get("campaign_name"),
+                "mission_status": getattr(serverReplyProcess, "mission_status", None),
+                "player_count": len(serverReplyProcess.players)
+                if getattr(serverReplyProcess, "players", None)
+                else None,
+                "players_detail": getattr(serverReplyProcess, "players", None),
+                "actors_detail": getattr(serverReplyProcess, "actors", None),
+                "stage_history": getattr(serverReplyProcess, "lastState", None),
+                "log_saved_filename": filename,
+                "global_values": self.fsm_engine.global_values.to_dict()
+                if self.fsm_engine
+                else None,
+                "fsm_config_path": self.fsm_json_path,
+            }
+
+            try:
+                row_id, persisted_session_uuid = flightlog_repository.insert_flightlog(
+                    serverReplyProcess.flightlog,
+                    metadata=metadata,
+                )
+                self.terminal.append_output(
+                    f"[FlightLog] 已写入数据库 (row={row_id}, session={persisted_session_uuid})"
+                )
+            except Exception as exc:
+                self.terminal.append_output(
+                    f"[FlightLog] 写入数据库失败: {exc}"
+                )
+
+            self.current_session_id = None
         
         # If debuglog is not empty, save it
         if serverReplyProcess.debuglog:
@@ -132,12 +276,17 @@ class MainPage(QWidget):
             filename = f"debuglog_{timestamp}.txt"
             rpPacker.SaveDebuglog(serverReplyProcess.debuglog, filename)
 
+    def _prepare_next_session(self):
+        """Reset runtime state for a new session."""
+        serverReplyProcess.clear_session_logs()
+        self.current_session_id = str(uuid.uuid4())
+
     def connect_terminal(self):
         self.terminal.connect_to_server()
     def host_game(self):
         # Before starting new session, save previous session logs
         self._save_session_logs()
-        serverReplyProcess.clear_session_logs()
+        self._prepare_next_session()
         self.terminal.send_command_api("host")
     def check_host(self):
         self.terminal.send_command_api("checkhost")
@@ -146,19 +295,19 @@ class MainPage(QWidget):
     def start_game(self):
         # Before starting game, save previous session logs
         self._save_session_logs()
-        serverReplyProcess.clear_session_logs()
+        self._prepare_next_session()
         self.terminal.send_command_api("start")
     def skip_game(self):
         self.terminal.send_command_api("skip")
     def restart_game(self):
         # Save current session logs before restart
         self._save_session_logs()
-        serverReplyProcess.clear_session_logs()
+        self._prepare_next_session()
         self.terminal.send_command_api("restart")
     def quit_game(self):
         # Save current session logs before quit
         self._save_session_logs()
-        serverReplyProcess.clear_session_logs()
+        self._prepare_next_session()
         self.terminal.send_command_api("quit")
     def quit_server(self):
         self.terminal.send_command_api("exitapp")
@@ -176,9 +325,7 @@ class MainPage(QWidget):
                 socket_service.connect()
             # Start FSM to an initial state (if not specified in JSON, can choose "1")
             if self.fsm_engine:
-                start_key = next(iter(self.fsm_engine.state_by_key.keys()), None)
-                if start_key:
-                    self.fsm_engine.start(start_key)
+                self._ensure_fsm_started("Demo")
             self.terminal.append_output("[Demo] Task started, timer started")
         else:
             self.task_running = False
@@ -187,11 +334,8 @@ class MainPage(QWidget):
             elapsed = tm.stop_stopwatch("task_timer")
             if elapsed is None:
                 elapsed = 0
-            context = {
-                "elapsed_ms": elapsed,
-                "server_ready": True,
-                "players": len(serverReplyProcess.players),
-            }
+            context = self._build_fsm_context(include_elapsed=False)
+            context["elapsed_ms"] = int(elapsed)
             step_result = self.fsm_engine.step(context) if self.fsm_engine else None
             if step_result:
                 next_key, actuator_cmd = step_result
@@ -229,58 +373,65 @@ class MainPage(QWidget):
             else:
                 self.terminal.append_output(f"[Demo] Task ended, elapsed {elapsed} ms, no available transition")
 
-    def _load_and_init_fsm(self, json_path: str = None):
+    def _load_and_init_fsm(self, json_path: Optional[str] = None):
         """
-        Load and initialize FSM engine
-        
-        Args:
-            json_path: FSM JSON file path, if None uses default path state_machine1.json
+        Load FSM configuration and initialize engine (without auto-start).
         """
-        import os, json
+        import os
+        import json
+
+        path = json_path
+        if path is None:
+            # Fallback to previously loaded path or default location
+            if self.fsm_json_path:
+                path = self.fsm_json_path
+            else:
+                path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "state_machine1.json")
+
         self.fsm_engine = None
+        self._fsm_started = False
+        self.auto_fsm_enabled = False
+        if self.auto_fsm_timer:
+            self.auto_fsm_timer.stop()
+        self.dashboard.set_auto_fsm_checked(False)
+
         states = []
-        
-        # If no path specified, use default path
-        if json_path is None:
-            json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "state_machine1.json")
-        
+        global_values_data: Dict[str, Any] = {}
+
         try:
-            with open(json_path, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 states = data.get("StateMachine", [])
-                self.terminal.append_output(f"[FSM] 已加载配置文件: {json_path}")
+                global_values_data = data.get("GlobalValues") or data.get("global_values") or {}
+                if not isinstance(global_values_data, dict):
+                    self.terminal.append_output("[FSM] 警告: GlobalValues 应为对象，已忽略")
+                    global_values_data = {}
+                self.terminal.append_output(f"[FSM] 已加载配置文件: {path}")
                 self.terminal.append_output(f"[FSM] 状态数量: {len(states)}")
         except FileNotFoundError:
-            self.terminal.append_output(f"[FSM] 警告: 配置文件不存在: {json_path}")
-            states = []
+            self.terminal.append_output(f"[FSM] 警告: 配置文件不存在: {path}")
         except Exception as e:
             self.terminal.append_output(f"[FSM] 错误: 加载配置文件失败: {e}")
-            states = []
 
-        # Load condition registry from config file
         condition_registry = get_default_condition_registry()
-        self.terminal.append_output(f"[FSM] Registered condition count: {len(condition_registry)}")
+        self.terminal.append_output(f"[FSM] 已注册函数数量: {len(condition_registry)}")
 
-        self.fsm_engine = FSMEngine(states, condition_registry)
-        
-        # If there are states, auto-start to first state
-        if states:
-            start_key = next(iter(self.fsm_engine.state_by_key.keys()), None)
-            if start_key:
-                self.fsm_engine.start(start_key)
-                self.terminal.append_output(f"[FSM] State machine started, current state: {start_key}")
-                
-                # Execute initial state Entry action (if exists)
-                entry_action = self.fsm_engine.get_state_entry_action(start_key)
-                if entry_action:
-                    self.terminal.append_output(f"[FSM] Executing initial state {start_key} Entry action: {entry_action}")
-                    # Build basic context
-                    context = {
-                        "server_ready": socket_service.is_connected(),
-                        "players": len(serverReplyProcess.players),
-                        "stage": serverReplyProcess.stage,
-                    }
-                    fsm_actuator.execute(entry_action, context)
+        self.fsm_engine = FSMEngine(states, condition_registry, global_values=global_values_data)
+        self.fsm_json_path = path
+
+        if global_values_data:
+            self.terminal.append_output(f"[FSM] 全局变量({len(global_values_data)}): {global_values_data}")
+        else:
+            self.terminal.append_output("[FSM] 未配置全局变量 (GlobalValues)")
+
+        start_key = self.fsm_engine.get_start_key()
+        if start_key:
+            self.terminal.append_output(f"[FSM] 初始状态: {start_key} (等待手动执行)")
+        else:
+            self.terminal.append_output("[FSM] 警告: 状态机未定义任何状态")
+
+        controls_enabled = bool(states)
+        self.dashboard.set_fsm_controls_enabled(controls_enabled)
     
     def load_fsm_config(self):
         """Load FSM configuration file from file dialog"""
@@ -303,21 +454,17 @@ class MainPage(QWidget):
         if not self.fsm_engine:
             self.terminal.append_output("[FSM] Error: State machine not initialized, please load FSM config file first")
             return
-        
+
+        if not self._ensure_fsm_started("Run FSM"):
+            return
+
         current_key = self.fsm_engine.get_current()
         if current_key is None:
             self.terminal.append_output("[FSM] Error: State machine not started")
             return
-        
-        # Build context
-        context = {
-            "elapsed_ms": tm.get_elapsed_time("task_timer") if tm.is_stopwatch_running("task_timer") else 0,
-            "server_ready": socket_service.is_connected(),
-            "players": len(serverReplyProcess.players),
-            "stage": serverReplyProcess.stage,
-            "mission_status": getattr(serverReplyProcess, 'mission_status', 'Running'),
-        }
-        
+
+        context = self._build_fsm_context()
+
         # Execute one state transition step (do not apply state immediately)
         step_result = self.fsm_engine.step(context)
         
@@ -333,7 +480,8 @@ class MainPage(QWidget):
                 entry_action = self.fsm_engine.get_state_entry_action(next_key)
                 if entry_action:
                     self.terminal.append_output(f"[FSM] Executing state {next_key} Entry action: {entry_action}")
-                    fsm_actuator.execute(entry_action, context)
+                    entry_context = self._build_fsm_context()
+                    fsm_actuator.execute(entry_action, entry_context)
             
             if actuator_cmd:
                 # Execute action and pass completion callback
@@ -372,39 +520,38 @@ class MainPage(QWidget):
     
     def toggle_auto_fsm(self, checked: bool):
         """Toggle auto FSM detection switch"""
-        self.auto_fsm_enabled = checked
+        if not self.fsm_engine:
+            self.terminal.append_output("[FSM] Error: State machine not initialized, please load FSM config file first")
+            self.dashboard.set_auto_fsm_checked(False)
+            self.auto_fsm_enabled = False
+            return
+
         if checked:
-            if not self.fsm_engine:
-                self.terminal.append_output("[FSM] Error: State machine not initialized, please load FSM config file first")
-                # Reset button state
-                sender = self.sender()
-                if sender:
-                    sender.setChecked(False)
+            if not self._ensure_fsm_started("Auto FSM"):
+                self.dashboard.set_auto_fsm_checked(False)
+                self.auto_fsm_enabled = False
                 return
-            
-            current_key = self.fsm_engine.get_current()
-            if current_key is None:
-                # Auto-start to first state
-                states = list(self.fsm_engine.state_by_key.keys())
-                if states:
-                    self.fsm_engine.start(states[0])
-                    self.terminal.append_output(f"[FSM] Auto-detection started, current state: {states[0]}")
-                else:
-                    self.terminal.append_output("[FSM] Error: State machine has no states")
-                    sender = self.sender()
-                    if sender:
-                        sender.setChecked(False)
-                    return
-            
-            self.auto_fsm_timer.start()
+            self.auto_fsm_enabled = True
+            if self.auto_fsm_timer:
+                self.auto_fsm_timer.start()
             self.terminal.append_output("[FSM] Auto-detection enabled (checking every 1 second)")
         else:
-            self.auto_fsm_timer.stop()
+            self.auto_fsm_enabled = False
+            if self.auto_fsm_timer:
+                self.auto_fsm_timer.stop()
+            self.dashboard.set_auto_fsm_checked(False)
             self.terminal.append_output("[FSM] Auto-detection disabled")
     
     def _auto_fsm_check(self):
         """Auto FSM detection callback (triggered by timer)"""
         if not self.fsm_engine or not self.auto_fsm_enabled:
+            return
+
+        if not self._ensure_fsm_started("Auto FSM"):
+            self.auto_fsm_enabled = False
+            if self.auto_fsm_timer:
+                self.auto_fsm_timer.stop()
+            self.dashboard.set_auto_fsm_checked(False)
             return
         
         current_key = self.fsm_engine.get_current()
@@ -412,13 +559,7 @@ class MainPage(QWidget):
             return
         
         # Build context (get latest data in real-time)
-        context = {
-            "elapsed_ms": tm.get_elapsed_time("task_timer") if tm.is_stopwatch_running("task_timer") else 0,
-            "server_ready": socket_service.is_connected(),
-            "players": len(serverReplyProcess.players),
-            "stage": serverReplyProcess.stage,
-            "mission_status": getattr(serverReplyProcess, 'mission_status', 'Running'),  # Need to set in actual code
-        }
+        context = self._build_fsm_context()
         
         # Execute one state transition step (do not apply state immediately)
         step_result = self.fsm_engine.step(context)
@@ -435,7 +576,8 @@ class MainPage(QWidget):
                 entry_action = self.fsm_engine.get_state_entry_action(next_key)
                 if entry_action:
                     self.terminal.append_output(f"[FSM Auto] Executing state {next_key} Entry action: {entry_action}")
-                    fsm_actuator.execute(entry_action, context)
+                    entry_context = self._build_fsm_context()
+                    fsm_actuator.execute(entry_action, entry_context)
             
             if actuator_cmd:
                 # Execute action and pass completion callback
@@ -489,14 +631,14 @@ class TerminalWidget(QWidget):
         self.dict_json = {}
         self.auto_command = False
         self.debug_mode = False  # Debug mode flag
+        self._local_actuator_executor = None
 
     def eventFilter(self, obj, event):
         if obj == self.input and event.type() == event.Type.KeyPress:
             if event.key() == Qt.Key.Key_Return and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 cmd = self.input.toPlainText().strip()
                 if cmd:
-                    self.append_output(f"> {cmd}")
-                    self.socket_worker.send_command(cmd)
+                    self._handle_command(cmd, auto=False, from_input=True)
                     self.input.clear()
                 return True
         return super().eventFilter(obj, event)
@@ -524,22 +666,66 @@ class TerminalWidget(QWidget):
         socket_service.connect()
 
     def send_command_api(self, command:str, auto=False):
-        # Avoid repeated auto command
-        if auto and self.auto_command:
-            return
-        self.auto_command = auto
-        socket_service.send_command(command)
-        if not auto:
-            self.output.append(f"> {command}")
+        self._handle_command(command, auto=auto, from_input=False)
     
     def clear(self):
         self.output.clear()
 
+    def set_local_actuator_executor(self, executor):
+        self._local_actuator_executor = executor
+
+    def _handle_command(self, command: str, *, auto: bool, from_input: bool):
+        command = (command or "").strip()
+        if not command:
+            return
+
+        is_local = command.startswith('/')
+
+        if not auto:
+            self.output.append(f"> {command}")
+
+        if is_local:
+            if not auto:
+                self.auto_command = False
+            local_cmd = command[1:].strip()
+            if not local_cmd:
+                self.append_output("[Terminal] 本地指令为空")
+                return
+            if not self._local_actuator_executor:
+                self.append_output("[Terminal] 本地指令执行未配置")
+                return
+            try:
+                self._local_actuator_executor(local_cmd)
+            except Exception as exc:
+                self.append_output(f"[Terminal] 本地指令执行异常: {exc}")
+            return
+
+        if auto:
+            if self.auto_command:
+                return
+            self.auto_command = True
+        else:
+            self.auto_command = False
+
+        socket_service.send_command(command)
+
 # ========== Dashboard Component ==========
 class DashboardWidget(QWidget):
-    def __init__(self, terminal_widget):
+    def __init__(
+        self,
+        terminal_widget,
+        *,
+        load_fsm_callback=None,
+        run_fsm_callback=None,
+        toggle_auto_fsm_callback=None,
+        auto_fsm_state_provider=None,
+    ):
         super().__init__()
         self.terminal_widget = terminal_widget  # Reference to terminal widget for debug mode control
+        self._load_fsm_callback = load_fsm_callback
+        self._run_fsm_callback = run_fsm_callback
+        self._toggle_auto_fsm_callback = toggle_auto_fsm_callback
+        self._auto_fsm_state_provider = auto_fsm_state_provider
         layout = QVBoxLayout()
         self.setLayout(layout)
         # Core utils
@@ -582,6 +768,37 @@ class DashboardWidget(QWidget):
         switch_layout.addWidget(self.switch_btn3)
         switch_layout.addStretch()
 
+        fsm_layout = QHBoxLayout()
+        fsm_layout.addWidget(QLabel("FSM Control:"))
+
+        self.btn_load_fsm = QPushButton("Load FSM")
+        if self._load_fsm_callback:
+            self.btn_load_fsm.clicked.connect(self._load_fsm_callback)
+        else:
+            self.btn_load_fsm.setEnabled(False)
+        fsm_layout.addWidget(self.btn_load_fsm)
+
+        self.btn_run_fsm = QPushButton("Run FSM")
+        if self._run_fsm_callback:
+            self.btn_run_fsm.clicked.connect(self._run_fsm_callback)
+        else:
+            self.btn_run_fsm.setEnabled(False)
+        fsm_layout.addWidget(self.btn_run_fsm)
+
+        self.btn_auto_fsm = QPushButton("Auto FSM")
+        self.btn_auto_fsm.setCheckable(True)
+        if self._toggle_auto_fsm_callback:
+            self.btn_auto_fsm.clicked.connect(self._on_auto_fsm_clicked)
+        else:
+            self.btn_auto_fsm.setEnabled(False)
+        if self._auto_fsm_state_provider:
+            initial_checked = bool(self._auto_fsm_state_provider())
+            self.btn_auto_fsm.blockSignals(True)
+            self.btn_auto_fsm.setChecked(initial_checked)
+            self.btn_auto_fsm.blockSignals(False)
+        fsm_layout.addWidget(self.btn_auto_fsm)
+        fsm_layout.addStretch()
+
         # Combo boxes (placeholders)
         self.combo1 = QComboBox()
         self.combo1.addItems([])
@@ -607,6 +824,7 @@ class DashboardWidget(QWidget):
         layout.addWidget(QLabel("Dashboard"))
         layout.addWidget(self.display_area)
         layout.addLayout(switch_layout)
+        layout.addLayout(fsm_layout)
         layout.addLayout(combo_layout)
         layout.addLayout(check_layout)
         layout.addStretch()
@@ -621,6 +839,33 @@ class DashboardWidget(QWidget):
 
         # Initial display
         self.update_display("States")
+
+    def _on_auto_fsm_clicked(self, checked: bool):
+        if self._toggle_auto_fsm_callback:
+            self._toggle_auto_fsm_callback(checked)
+        else:
+            # Fallback: reset button to unchecked if callback missing
+            self.btn_auto_fsm.blockSignals(True)
+            self.btn_auto_fsm.setChecked(False)
+            self.btn_auto_fsm.blockSignals(False)
+
+    def set_auto_fsm_checked(self, checked: bool):
+        self.btn_auto_fsm.blockSignals(True)
+        self.btn_auto_fsm.setChecked(bool(checked))
+        self.btn_auto_fsm.blockSignals(False)
+
+    def set_fsm_controls_enabled(self, enabled: bool):
+        if self._run_fsm_callback:
+            self.btn_run_fsm.setEnabled(enabled)
+        else:
+            self.btn_run_fsm.setEnabled(False)
+
+        if self._toggle_auto_fsm_callback:
+            self.btn_auto_fsm.setEnabled(enabled)
+        else:
+            self.btn_auto_fsm.setEnabled(False)
+        if not enabled:
+            self.set_auto_fsm_checked(False)
 
     def _toggle_auto_refresh(self, state):
         """Toggle auto-refresh switch"""

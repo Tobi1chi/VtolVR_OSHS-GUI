@@ -218,6 +218,55 @@ def stage_equals(context: dict, target: Optional[str] = None) -> Union[bool, Dic
     return result
 
 
+def write_terminal(context: dict, message: str) -> Union[bool, Dict[str, Any]]:
+    """
+    Write message to terminal
+    """
+    try:
+        from GUI.MainPage import terminal
+        if terminal:
+            terminal.append_output(message)
+    except Exception as e:
+        print(f"[WriteTerminal] Error: {e}")
+        return False
+    return True
+
+
+def gv_get(context: dict, key: str, default: Any = None) -> Any:
+    """
+    Get FSM global value by key.
+    """
+    gv = context.get("global_values")
+    if gv is None:
+        return default
+    try:
+        return gv.get(key, default)
+    except Exception:
+        return default
+
+
+def gv_set(context: dict, key: str, value: Any) -> Dict[str, Any]:
+    """
+    Set FSM global value (only predefined keys are allowed).
+    """
+    gv = context.get("global_values")
+    if gv is None:
+        return {"ok": False, "error": "global values unavailable"}
+    try:
+        gv.set(key, value)
+        return {"ok": True, "key": key, "value": value}
+    except KeyError as exc:
+        return {"ok": False, "error": str(exc), "key": key}
+    except Exception as exc:
+        return {"ok": False, "error": str(exc), "key": key}
+
+
+def start_next(context: dict) -> Union[bool, Dict[str, Any]]:
+    """
+    Start next state.
+    """
+    
+    return {"ok": True, "start_next": True}
 # ===== Unified Function Registry =====
 # Register functions to names, can be used for both conditions and actions
 # Format: "function_name": function
@@ -236,7 +285,10 @@ UNIFIED_FUNCTIONS: Dict[str, Callable] = {
     "players_ge": players_ge,
     "server_ready": server_ready,
     "stage_equals": stage_equals,
-    
+    "write_terminal": write_terminal,
+    "gv_get": gv_get,
+    "gv_set": gv_set,
+    "start_next": start_next
 
     
     # You can add more unified functions:
@@ -260,11 +312,9 @@ def get_functions_doc() -> Dict[str, str]:
         "players_ge": "Player count >= specified value, example: players_ge(3)",
         "server_ready": "Server ready",
         "stage_equals": "Current stage equals specified value, example: stage_equals('stage1')",
-        # Backward compatible
-        "elapsed_ge_5s": "Task elapsed time >= 5 seconds (backward compatible)",
-        "elapsed_ge_10s": "Task elapsed time >= 10 seconds (backward compatible)",
-        "players_ge_1": "Player count >= 1 (backward compatible)",
-        "players_ge_8": "Player count >= 8 (backward compatible)",
+        "write_terminal": "Write message to UI terminal, example: write_terminal('Hello')",
+        "gv_get": "Get FSM global value by key, example: gv_get('retry_count')",
+        "gv_set": "Set FSM global value by key, example: gv_set('retry_count', 2)",
     }
 
 
