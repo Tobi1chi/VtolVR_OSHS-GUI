@@ -8,9 +8,9 @@ from PyQt6.QtCore import Qt, pyqtSignal, QObject
 from PyQt6.QtGui import QFont
 from GUI.MainPage import MainPage
 from GUI.NewPage import StateMachineEditorPage
-# ========== Page 2: 全新页面 ==========
+# ========== Page 2: New Page ==========
 
-# ========== 主窗口 ==========
+# ========== Main Window ==========
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget.setCurrentIndex(0)
 
 
-# ========== 启动 ==========
+# ========== Application Entry Point ==========
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()

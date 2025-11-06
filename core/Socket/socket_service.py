@@ -4,9 +4,9 @@ from core.Socket.SocketWorker import SocketWorker
 
 class SocketService(QObject):
     """
-    统一的 Socket 服务：
-    - 内部持有一个 SocketWorker 单例，供全局组件共享连接、信号与发送能力。
-    - 暴露 worker 以兼容现有 TerminalWidget 用法（例如读取 running）。
+    Unified Socket Service:
+    - Internally holds a SocketWorker singleton for global components to share connection, signals, and sending capabilities.
+    - Exposes worker for compatibility with existing TerminalWidget usage (e.g., reading running status).
     """
 
     def __init__(self, host: str = 'localhost', port: int = 23232):
@@ -28,5 +28,5 @@ class SocketService(QObject):
         self._worker.send_command(cmd)
 
 
-# 模块级单例
+# Module-level singleton
 socket_service = SocketService()

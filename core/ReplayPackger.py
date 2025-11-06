@@ -4,31 +4,31 @@ import os
 
 class replayPacker(object):
     def __init__(self):
-        # 创建 logs 目录用于存储日志文件
+        # Create logs directory for storing log files
         self.base_path = Path(__file__).resolve().parent.parent
         self.logs_dir = self.base_path / "logs"
         self.logs_dir.mkdir(parents=True, exist_ok=True)
 
     def SaveFlightlog(self, log_lines, filename: str = None):
         """
-        保存 flightlog 到文件
+        Save flightlog to file
         
         Args:
-            log_lines: 日志行列表或字符串
-            filename: 文件名（可选），如果不提供则自动生成
+            log_lines: Log line list or string
+            filename: Filename (optional), will be auto-generated if not provided
         """
         if filename is None:
-            # 自动生成文件名：使用当前时间戳
+            # Auto-generate filename: use current timestamp
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"flightlog_{timestamp}.txt"
         
-        # 确保文件名以 .txt 结尾
+        # Ensure filename ends with .txt
         if not filename.endswith('.txt'):
             filename += '.txt'
         
         file_path = self.logs_dir / filename
         
-        # 将日志内容写入文件
+        # Write log content to file
         if isinstance(log_lines, list):
             content = '\n'.join(log_lines)
         else:
@@ -37,19 +37,19 @@ class replayPacker(object):
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(content)
-            print(f"[ReplayPacker] Flightlog 已保存到: {file_path}")
+            print(f"[ReplayPacker] Flightlog saved to: {file_path}")
             return str(file_path)
         except Exception as e:
-            print(f"[ReplayPacker] 保存 flightlog 失败: {e}")
+            print(f"[ReplayPacker] Failed to save flightlog: {e}")
             return None
     
     def SaveDebuglog(self, log_lines, filename: str = None):
         """
-        预留接口：保存 debuglog 到文件
+        Reserved interface: Save debuglog to file
         
         Args:
-            log_lines: 日志行列表或字符串
-            filename: 文件名（可选），如果不提供则自动生成
+            log_lines: Log line list or string
+            filename: Filename (optional), will be auto-generated if not provided
         """
         if filename is None:
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -68,14 +68,14 @@ class replayPacker(object):
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(content)
-            print(f"[ReplayPacker] Debuglog 已保存到: {file_path}")
+            print(f"[ReplayPacker] Debuglog saved to: {file_path}")
             return str(file_path)
         except Exception as e:
-            print(f"[ReplayPacker] 保存 debuglog 失败: {e}")
+            print(f"[ReplayPacker] Failed to save debuglog: {e}")
             return None
     
     def get_logs_directory(self):
-        """返回日志目录路径"""
+        """Return logs directory path"""
         return str(self.logs_dir)
 
 
@@ -100,12 +100,12 @@ def main():
     print(f"HoldTime(UTC): {hold_time}\nTimezone: {hold_time.tzinfo}")
     rp = replayPacker()
     # rp.StartTimer
-    return hold_time  # 返回时间对象，供后续使用
+    return hold_time  # Return time object for future use
 
 
 if __name__ == "__main__":
     hold_time = main()
-    # 将时间格式化为合法的文件名（去掉冒号、空格等）
+    # Format time to a valid filename (remove colons, spaces, etc.)
     filename = hold_time.strftime("%Y-%m-%d_%H-%M") + ".log"
     Event = []
     Event.append("123123")

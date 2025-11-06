@@ -28,7 +28,7 @@ class SocketWorker(QObject):
             self.debug_received.emit(f"[Error] {e}")
 
     def _listen(self):
-        binary_buffer = bytes()  # 使用二进制缓冲区存储未解码的数据
+        binary_buffer = bytes()  # Use binary buffer to store undecoded data
         while self.running:
             # Check connection
             try:
@@ -42,64 +42,64 @@ class SocketWorker(QObject):
                 if not data:
                     break
                 
-                # 将新接收的二进制数据添加到缓冲区
+                # Add newly received binary data to buffer
                 binary_buffer += data
                 
-                # 尝试解码缓冲区中的数据
+                # Try to decode data in buffer
                 try:
-                    # 尝试完整解码
+                    # Try full decode
                     text_buffer = binary_buffer.decode('utf-8')
                     
-                    # 检查是否有完整消息（以换行符分隔）
+                    # Check if there are complete messages (separated by newlines)
                     if '\n' in text_buffer:
-                        # 按换行符分割消息
+                        # Split messages by newline
                         messages = text_buffer.split('\n')
-                        # 处理除最后一个可能不完整的消息外的所有消息
+                        # Process all messages except the last potentially incomplete one
                         for i in range(len(messages) - 1):
-                            if messages[i]:  # 避免发送空消息
+                            if messages[i]:  # Avoid sending empty messages
                                 self.message_received.emit(messages[i])
-                        # 保留最后一个可能不完整的消息
-                        # 如果最后一个字符是换行符，则不需要保留
+                        # Keep last potentially incomplete message
+                        # If last character is newline, don't need to keep
                         if text_buffer.endswith('\n'):
                             binary_buffer = b""
                         else:
-                            # 重新编码最后一个不完整的消息，放回二进制缓冲区
+                            # Re-encode last incomplete message, put back to binary buffer
                             binary_buffer = messages[-1].encode('utf-8')
                 except UnicodeDecodeError:
-                    # 解码失败，可能是多字节字符被分割
-                    # 尝试从缓冲区末尾逐步回退，找到有效的UTF-8边界
-                    # 从缓冲区长度-1开始尝试，直到找到有效的解码点
+                    # Decode failed, possibly multi-byte character was split
+                    # Try to step back from end of buffer to find valid UTF-8 boundary
+                    # Try from buffer length-1 until finding valid decode point
                     for i in range(1, len(binary_buffer)):
                         try:
-                            # 尝试解码除了最后i个字节外的所有数据
+                            # Try to decode all data except last i bytes
                             valid_part = binary_buffer[:-i].decode('utf-8')
                             
-                            # 检查有效部分中是否有完整消息
+                            # Check if valid part has complete messages
                             if '\n' in valid_part:
                                 messages = valid_part.split('\n')
                                 for j in range(len(messages) - 1):
                                     if messages[j]:
                                         self.message_received.emit(messages[j])
-                                # 重新编码最后一个不完整的消息
+                                # Re-encode last incomplete message
                                 remaining_text = messages[-1] if not valid_part.endswith('\n') else ""
-                                # 保留未解码的部分加上剩余文本的编码
+                                # Keep undecoded part plus encoding of remaining text
                                 binary_buffer = remaining_text.encode('utf-8') + binary_buffer[-i:]
                             else:
-                                # 没有换行符，保留整个缓冲区
+                                # No newline, keep entire buffer
                                 pass
                             break
                         except UnicodeDecodeError:
-                            # 继续尝试更小的有效部分
+                            # Continue trying smaller valid part
                             continue
-                    # 如果无法找到有效边界，保留整个缓冲区
-                    # 下一次接收到数据时会再次尝试
+                    # If unable to find valid boundary, keep entire buffer
+                    # Will try again next time data is received
             except Exception as e:
                 if type(e) is not BlockingIOError:
                     self.debug_received.emit(f"[Recv Error] {e}")
                     break
             # Try send data
             if not self.queue.empty():
-                # 从队列中获取命令
+                # Get command from queue
                 cmd = self.queue.get_nowait()
                 self.sock.sendall((cmd + '\n').encode('utf-8'))
           

@@ -1,8 +1,8 @@
-# FSM 模块导出
+# FSM Module Exports
 from core.FSM.fsm_engine import FSMEngine, ConditionFunc
 from core.FSM.fsm_actuator import FSMActuator, fsm_actuator
 
-# 导入统一函数配置
+# Import unified function configuration
 try:
     from core.FSM.fsm_functions_config import UNIFIED_FUNCTIONS, get_functions_doc
 except ImportError:
@@ -13,10 +13,10 @@ except ImportError:
 
 def get_default_condition_registry():
     """
-    获取默认的条件注册表（从统一函数配置加载）
+    Get default condition registry (loaded from unified function configuration)
     
     Returns:
-        Dict[str, ConditionFunc]: 条件名称到条件函数的映射
+        Dict[str, ConditionFunc]: Mapping from condition names to condition functions
     """
     return UNIFIED_FUNCTIONS.copy()
 

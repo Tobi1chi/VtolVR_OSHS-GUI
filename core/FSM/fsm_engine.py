@@ -1,6 +1,6 @@
 from typing import Callable, Dict, Any, List, Optional, Tuple, Union
 
-# 导入统一函数注册表
+# Import unified function registry
 try:
     from core.FSM.fsm_functions_config import UNIFIED_FUNCTIONS
 except ImportError:
@@ -12,12 +12,12 @@ ConditionFunc = Callable[[dict], bool]
 
 class FSMEngine:
     """
-    轻量级有限状态机引擎：
-    - 状态以字典列表给出（含 Key）。
-    - 支持 `Transitions`: [{"to": "2", "cond": "need_players_ge_8"}, {"to": "3", "else": true, "actuator_cmd": "start"}]
-    - 兼容旧格式：若无 `Transitions`，则尝试使用 `Linked State` 的第一个元素作为无条件转移。
-    - `condition_registry` 中注册条件函数，名称对应 JSON。
-    - `step(context)` 会按顺序评估条件，命中则转移并返回 (next_key, actuator_cmd)。
+    Lightweight Finite State Machine Engine:
+    - States are given as a list of dictionaries (containing Key).
+    - Supports `Transitions`: [{"to": "2", "cond": "need_players_ge_8"}, {"to": "3", "else": true, "actuator_cmd": "start"}]
+    - Compatible with old format: If no `Transitions`, tries to use the first element of `Linked State` as an unconditional transition.
+    - Condition functions are registered in `condition_registry`, names correspond to JSON.
+    - `step(context)` evaluates conditions in order, if matched, transitions and returns (next_key, actuator_cmd).
     """
 
     def __init__(self, states: List[dict], condition_registry: Dict[str, ConditionFunc]):
@@ -44,12 +44,12 @@ class FSMEngine:
 
         transitions = state.get("Transitions")
 
-        # 兼容老格式：没有 Transitions，则使用 Linked State 的第一个元素
+        # Compatible with old format: if no Transitions, use first element of Linked State
         if not transitions:
             linked = state.get("Linked State", [])
             if linked:
                 next_key = str(linked[0])
-                # 无条件转移，立即应用
+                # Unconditional transition, apply immediately
                 self.current_key = next_key
                 return next_key, None
             return None
@@ -64,11 +64,11 @@ class FSMEngine:
                 continue
 
             matched = False
-            # 单一条件名称（向后兼容，支持函数调用）
+            # Single condition name (backward compatible, supports function calls)
             cond_name = t.get("cond")
             if cond_name:
                 matched = self._evaluate_condition(cond_name, context)
-            # 逻辑表达式：支持 and/or/not 与括号
+            # Logical expression: supports and/or/not with parentheses
             cond_expr = t.get("cond_expr")
             if cond_expr and not matched:
                 try:
@@ -79,35 +79,35 @@ class FSMEngine:
             if matched:
                 next_key = str(t.get("to")) if t.get("to") is not None else None
                 if next_key is not None:
-                    # 不立即转移状态，返回转移信息让外部决定何时转移
+                    # Do not transition immediately, return transition info for external decision
                     return next_key, t.get("actuator_cmd")
                 return None
 
         if else_target is not None:
-            # 不立即转移状态，返回转移信息让外部决定何时转移
+            # Do not transition immediately, return transition info for external decision
             return else_target, else_actuator
 
         return None
     
     def apply_transition(self, next_key: str) -> None:
         """
-        应用状态转移（在 action 执行完成后调用）
+        Apply state transition (called after action execution completes)
         
         Args:
-            next_key: 要转移到的状态 Key
+            next_key: State Key to transition to
         """
         if next_key is not None:
             self.current_key = str(next_key)
     
     def get_state_entry_action(self, state_key: str) -> Optional[str]:
         """
-        获取状态的Entry动作（如果存在）
+        Get state Entry action (if exists)
         
         Args:
-            state_key: 状态 Key
+            state_key: State Key
             
         Returns:
-            Entry动作字符串，如果状态有campaign id和mapname，返回init动作
+            Entry action string, returns init action if state has campaign id and mapname
         """
         state = self.state_by_key.get(str(state_key))
         if not state:
@@ -123,25 +123,25 @@ class FSMEngine:
     
     def _evaluate_condition(self, cond_expr: str, context: dict) -> bool:
         """
-        评估单个条件表达式（支持函数调用）
+        Evaluate a single condition expression (supports function calls)
         
         Args:
-            cond_expr: 条件表达式，如 "players_ge(3)" 或 "server_ready"
-            context: 上下文字典
+            cond_expr: Condition expression, like "players_ge(3)" or "server_ready"
+            context: Context dictionary
         
         Returns:
-            bool: 条件是否满足
+            bool: Whether the condition is satisfied
         """
-        # 检查是否是函数调用
+        # Check if it's a function call
         if '(' in cond_expr and cond_expr.endswith(')'):
-            # 解析函数调用
+            # Parse function call
             func_name = cond_expr[:cond_expr.index('(')].strip()
             args_str = cond_expr[cond_expr.index('(')+1:-1].strip()
             
-            # 解析参数
+            # Parse arguments
             args = []
             if args_str:
-                # 简单的参数解析（支持逗号分隔）
+                # Simple argument parsing (supports comma separation)
                 tokens = self._tokenize(args_str)
                 i = 0
                 while i < len(tokens):
@@ -149,19 +149,19 @@ class FSMEngine:
                     if token == ',':
                         i += 1
                         continue
-                    # 字符串字面量（带引号）
+                    # String literal (with quotes)
                     if (token.startswith('"') and token.endswith('"')) or \
                        (token.startswith("'") and token.endswith("'")):
-                        args.append(token[1:-1])  # 移除引号
+                        args.append(token[1:-1])  # Remove quotes
                         i += 1
-                    # 数字
+                    # Number
                     elif token.replace('.', '').replace('-', '').isdigit():
                         try:
                             args.append(float(token) if '.' in token else int(token))
                         except ValueError:
                             args.append(token)
                         i += 1
-                    # 布尔值
+                    # Boolean
                     elif token.lower() == 'true':
                         args.append(True)
                         i += 1
@@ -172,7 +172,7 @@ class FSMEngine:
                         args.append(token)
                         i += 1
             
-            # 调用函数
+            # Call function
             func = self.condition_registry.get(func_name)
             if func is None:
                 unified_func = UNIFIED_FUNCTIONS.get(func_name)
@@ -190,7 +190,7 @@ class FSMEngine:
                 except Exception:
                     return False
         else:
-            # 无参数调用
+            # No-argument call
             func = self.condition_registry.get(cond_expr)
             if func is None:
                 unified_func = UNIFIED_FUNCTIONS.get(cond_expr)
@@ -208,7 +208,7 @@ class FSMEngine:
                 except Exception:
                     return False
 
-    # ===== 内部：布尔表达式解析（and/or/not 与括号） =====
+    # ===== Internal: Boolean expression parsing (and/or/not with parentheses) =====
     def _eval_condition_expr(self, expr: str, context: dict) -> bool:
         tokens = self._tokenize(expr)
         pos = 0
@@ -260,15 +260,15 @@ class FSMEngine:
                 if not consume(')'):
                     raise ValueError('missing closing )')
                 return val
-            # 条件名称或函数调用
+            # Condition name or function call
             name = consume()
             if name is None:
                 raise ValueError('unexpected end')
             
-            # 检查是否是函数调用（有括号）
+            # Check if it's a function call (with parentheses)
             if peek() == '(':
                 consume('(')
-                # 解析函数参数
+                # Parse function arguments
                 args = []
                 if peek() != ')':
                     while True:
@@ -281,7 +281,7 @@ class FSMEngine:
                 if not consume(')'):
                     raise ValueError('missing closing ) for function call')
                 
-                # 调用函数（带参数）
+                # Call function (with arguments)
                 func = self.condition_registry.get(name)
                 if func is None:
                     unified_func = UNIFIED_FUNCTIONS.get(name)
@@ -299,7 +299,7 @@ class FSMEngine:
                         return False
                 return False
             else:
-                # 无参数调用
+                # No-argument call
                 func = self.condition_registry.get(name)
                 if func is None:
                     unified_func = UNIFIED_FUNCTIONS.get(name)
@@ -329,20 +329,20 @@ class FSMEngine:
                 out.append(c)
                 i += 1
                 continue
-            # 识别字符串字面量（单引号或双引号）
+            # Recognize string literals (single or double quotes)
             if c in '\'"':
                 quote = c
                 j = i + 1
                 while j < n and s[j] != quote:
                     if s[j] == '\\' and j + 1 < n:
-                        j += 2  # 跳过转义字符
+                        j += 2  # Skip escape characters
                     else:
                         j += 1
                 if j < n:
-                    out.append(s[i:j+1])  # 包含引号
+                    out.append(s[i:j+1])  # Include quotes
                     i = j + 1
                     continue
-            # 识别数字
+            # Recognize numbers
             if c.isdigit() or (c == '-' and i + 1 < n and s[i+1].isdigit()):
                 j = i + 1
                 while j < n and (s[j].isdigit() or s[j] == '.'):
@@ -350,9 +350,9 @@ class FSMEngine:
                 out.append(s[i:j])
                 i = j
                 continue
-            # 识别标识符（条件名或 and/or/not）
+            # Recognize identifiers (condition names or and/or/not)
             j = i
-            while j < n and (s[j].isalnum() or s[j] == '_' or s[j] == '.'):  # 允许下划线与点
+            while j < n and (s[j].isalnum() or s[j] == '_' or s[j] == '.'):  # Allow underscores and dots
                 j += 1
             if j == i:
                 raise ValueError(f'bad char: {s[i]!r}')
@@ -366,21 +366,21 @@ class FSMEngine:
         return out
     
     def _parse_function_arg(self, consume, peek) -> Any:
-        """解析函数参数（支持数字、字符串、布尔值）"""
+        """Parse function argument (supports numbers, strings, booleans)"""
         token = peek()
         if token is None:
             raise ValueError('unexpected end in function argument')
         
-        # 字符串字面量
+        # String literal
         if (token.startswith('"') and token.endswith('"')) or \
            (token.startswith("'") and token.endswith("'")):
             consume()
-            # 移除引号并处理转义
+            # Remove quotes and handle escapes
             s = token[1:-1]
             s = s.replace('\\"', '"').replace("\\'", "'").replace('\\\\', '\\')
             return s
         
-        # 数字
+        # Number
         try:
             if '.' in token:
                 return float(token)
@@ -389,7 +389,7 @@ class FSMEngine:
         except ValueError:
             pass
         
-        # 布尔值
+        # Boolean
         if token.lower() == 'true':
             consume()
             return True
@@ -397,7 +397,7 @@ class FSMEngine:
             consume()
             return False
         
-        # 默认作为字符串（无引号）
+        # Default as string (without quotes)
         consume()
         return token
 

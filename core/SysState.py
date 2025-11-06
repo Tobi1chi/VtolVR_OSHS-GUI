@@ -10,9 +10,9 @@ class SysState(QObject):
         self._stop_event = threading.Event()
         self.memory = psutil.virtual_memory()
         # self.game_process = psutil.Process(os.getpid())
-        self.GUI_process = psutil.Process(os.getpid())  # 实际上和 game_process 是同一个进程
+        self.GUI_process = psutil.Process(os.getpid())  # Actually the same process as game_process
 
-        # 启动后台刷新线程
+        # Start background refresh thread
         self._refresh_thread = threading.Thread(target=self._refresh_loop, daemon=True)
         self._refresh_thread.start()
 
@@ -38,26 +38,26 @@ class SysState(QObject):
                 return {"error": f"Access denied to process {pid}"}
         return "1"
     def find_pid_by_name(self,process_name:str)->int:
-        #根据进程名字查找id
+        # Find process ID by process name
         pids = 0
         for proc in psutil.process_iter(['pid', 'name']):
             try:
                 if proc.info['name'] == process_name:
                     pids = proc.info['pid']
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                # 进程可能在遍历时已退出，跳过
+                # Process might have exited during iteration, skip it
                 continue
         return pids
     def _refresh_loop(self):
         while not self._stop_event.is_set():
             try:
                 self.memory = psutil.virtual_memory()
-                # 如果 game_process 或 GUI_process 可能退出，建议加异常处理
-                # 但当前它们都是当前进程，一般不会失效
+                # If game_process or GUI_process might exit, add exception handling
+                # But currently they are the current process, usually won't fail
             except psutil.NoSuchProcess:
-                pass  # 可根据需要处理
-            time.sleep(1)  # 每秒刷新一次
+                pass  # Handle as needed
+            time.sleep(1)  # Refresh every second
 
     def stop(self):
-        #手动终止进程
+        # Manually stop the process
         self._stop_event.set()

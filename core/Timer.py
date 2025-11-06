@@ -4,19 +4,19 @@ from typing import Callable, Dict, Optional
 
 class TimerManager(QObject):
     """
-    统一管理 PyQt 中的所有 QTimer 实例。
-    所有操作必须在主线程（GUI 线程）中调用。
+    Centralized management of all QTimer instances in PyQt.
+    All operations must be called in the main thread (GUI thread).
     """
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._timers = {}  # name -> QTimer
-        self._timer_start_times = {}  # name -> start_time_ms (用于计时功能)
+        self._timer_start_times = {}  # name -> start_time_ms (for timing functionality)
 
     def start_timer(self, name: str, interval_ms: int, callback: Callable, single_shot: bool = False):
         """
-        启动一个命名定时器。
-        如果同名定时器已存在，会先停止并替换。
+        Start a named timer.
+        If a timer with the same name exists, it will be stopped and replaced first.
         """
         if name in self._timers:
             self.stop_timer(name)
@@ -29,29 +29,29 @@ class TimerManager(QObject):
 
     def start_stopwatch(self, name: str) -> bool:
         """
-        启动一个秒表（用于计时，不触发回调）。
+        Start a stopwatch (for timing, does not trigger callbacks).
         
         Args:
-            name: 秒表名称
+            name: Stopwatch name
             
         Returns:
-            是否成功启动
+            Whether started successfully
         """
         if name in self._timers:
-            return False  # 已存在同名计时器
+            return False  # Timer with same name already exists
         
         self._timer_start_times[name] = QDateTime.currentMSecsSinceEpoch()
         return True
 
     def get_elapsed_time(self, name: str) -> Optional[int]:
         """
-        获取秒表的经过时间（毫秒）。
+        Get the elapsed time of the stopwatch (in milliseconds).
         
         Args:
-            name: 秒表名称
+            name: Stopwatch name
             
         Returns:
-            经过的毫秒数，如果秒表不存在返回 None
+            Elapsed milliseconds, returns None if stopwatch doesn't exist
         """
         if name not in self._timer_start_times:
             return None
@@ -62,13 +62,13 @@ class TimerManager(QObject):
 
     def stop_stopwatch(self, name: str) -> Optional[int]:
         """
-        停止秒表并返回经过的时间。
+        Stop the stopwatch and return the elapsed time.
         
         Args:
-            name: 秒表名称
+            name: Stopwatch name
             
         Returns:
-            经过的毫秒数，如果秒表不存在返回 None
+            Elapsed milliseconds, returns None if stopwatch doesn't exist
         """
         elapsed = self.get_elapsed_time(name)
         if elapsed is not None:
@@ -76,28 +76,28 @@ class TimerManager(QObject):
         return elapsed
 
     def is_stopwatch_running(self, name: str) -> bool:
-        """检查秒表是否正在运行"""
+        """Check if the stopwatch is running"""
         return name in self._timer_start_times
 
     def stop_timer(self, name: str) -> bool:
-        """停止并移除指定名称的定时器。返回是否成功停止。"""
+        """Stop and remove the timer with the specified name. Returns whether successfully stopped."""
         if name in self._timers:
             timer = self._timers.pop(name)
             timer.stop()
-            timer.deleteLater()  # 安全释放资源
+            timer.deleteLater()  # Safely release resources
             return True
         return False
 
     def is_timer_active(self, name: str) -> bool:
-        """检查指定名称的定时器是否正在运行。"""
+        """Check if the timer with the specified name is running."""
         return name in self._timers and self._timers[name].isActive()
 
     def list_timers(self):
-        """返回当前所有定时器的名称列表（调试用）"""
+        """Return a list of names of all current timers (for debugging)"""
         return list(self._timers.keys())
 
     def stop_all_timers(self):
-        """停止并清理所有定时器和秒表"""
+        """Stop and clean up all timers and stopwatches"""
         for name in list(self._timers.keys()):
             self.stop_timer(name)
         self._timer_start_times.clear()

@@ -4,7 +4,7 @@ import os
 import time
 
 def parse_and_save_to_csv(input_file, output_file):
-    # 正则：匹配所有地图包（包括 WSID=0）
+    # Regex: match all map packages (including WSID=0)
     main_pattern = re.compile(
         r'Name:\s*"([^"]+)"\s+ID:\s*"([^"]+)"\s+(?:True|False)\s+WSID:\s*(\d+)'
     )
@@ -12,7 +12,7 @@ def parse_and_save_to_csv(input_file, output_file):
         r'-\s+([^"]+?)\s+ID:\s*"([^"]+)"'
     )
 
-    all_rows = []  # 存储 CSV 行数据
+    all_rows = []  # Store CSV row data
 
     current_package = None
 
@@ -23,13 +23,13 @@ def parse_and_save_to_csv(input_file, output_file):
                 continue
                 
 
-            # 检查是否为主包行
+            # Check if it's a main package line
             main_match = main_pattern.search(line)
             if main_match:
                 package_name = main_match.group(1)
                 #package_id = main_match.group(2)
                 wsid = int(main_match.group(3))
-                # 如果 WSID 为 0，用 package_name 代替
+                # If WSID is 0, use package_name instead
                 wsid_or_name = package_name if wsid == 0 else str(wsid)
                 current_package = {
                     "package_name": package_name,
@@ -38,7 +38,7 @@ def parse_and_save_to_csv(input_file, output_file):
                 }
                 continue
 
-            # 匹配子地图
+            # Match sub-maps
             if current_package is not None:
                 sub_match = sub_pattern.search(line)
                 if sub_match:
@@ -52,17 +52,17 @@ def parse_and_save_to_csv(input_file, output_file):
                         "map_id": map_id
                     })
 
-    # 写入 CSV
+    # Write to CSV
     with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ["package_name", "wsid", "map_name", "map_id"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(all_rows)
 
-    print(f"✅ 已保存 {len(all_rows)} 条地图记录到 {output_file}")
-    print(f"📁 文件路径: {os.path.abspath(output_file)}")
+    print(f"✅ Saved {len(all_rows)} map records to {output_file}")
+    print(f"📁 File path: {os.path.abspath(output_file)}")
 
-# ===== 使用 =====
+# ===== Usage =====
 if __name__ == "__main__":
     now = time.time()
     parse_and_save_to_csv("List.txt", "maplist.csv")
