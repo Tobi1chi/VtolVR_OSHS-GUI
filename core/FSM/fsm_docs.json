@@ -1,0 +1,60 @@
+{
+  "fields": [
+    { "name": "to", "type": "string", "desc": "转移的目标状态 Key（必填）" },
+    { "name": "cond", "type": "string", "desc": "单一条件函数名（可选，向后兼容）" },
+    {
+      "name": "cond_expr",
+      "type": "string",
+      "desc": "逻辑表达式（可选）：支持 and/or/not 与括号，表达式中的名字为已注册条件函数名"
+    },
+    { "name": "else", "type": "boolean", "desc": "是否为兜底分支（true/false），与 cond/cond_expr 互斥" },
+    { "name": "actuator_cmd", "type": "string", "desc": "命中该转移时通过 socket 发送的指令（可选）" }
+  ],
+  "evaluation_order": [
+    "对每条转移按数组顺序评估",
+    "若存在 cond：先评估 cond（true 则命中）",
+    "若 cond 未命中且存在 cond_expr：再评估 cond_expr（true 则命中）",
+    "若以上都未命中，继续评估下一条转移",
+    "若存在 else:true 的转移，最后作为兜底命中"
+  ],
+  "syntax": {
+    "operators": ["and", "or", "not"],
+    "parentheses": "支持 () 指定优先级",
+    "precedence": ["not 最优先", "and 其次", "or 最后"],
+    "identifiers": "表达式中的名字需是已注册的条件函数名（如 elapsed_ge_5s）",
+    "examples": [
+      "elapsed_ge_5s",
+      "elapsed_ge_5s and players_ge_1",
+      "elapsed_ge_5s and (players_ge_1 or server_ready)",
+      "not server_ready"
+    ]
+  },
+  "conditions": [
+    { "name": "elapsed_ge_5s", "desc": "任务耗时 >= 5 秒" },
+    { "name": "elapsed_ge_10s", "desc": "任务耗时 >= 10 秒" },
+    { "name": "server_ready", "desc": "服务器就绪（示例上下文布尔值）" },
+    { "name": "players_ge_1", "desc": "玩家数量 >= 1（示例）" },
+    { "name": "players_ge_8", "desc": "玩家数量 >= 8（示例）" },
+    { "name": "stage_equals", "desc": "当前阶段等于指定值（需要 context['stage'] 和 context['target_stage']）" }
+  ],
+  "unified_functions_note": "所有函数定义在 core/FSM/fsm_functions_config.py 中，可以同时作为条件和动作使用",
+  "commands": [
+    { "name": "start_next", "desc": "进入下一环节/任务" },
+    { "name": "fallback", "desc": "条件未命中时的兜底指令" },
+    { "name": "fallback_default", "desc": "默认兜底指令" },
+    { "name": "getstage", "desc": "请求服务器下发当前阶段（示例）" }
+  ],
+  "transition_examples": [
+    {
+      "desc": "单条件",
+      "value": { "to": "2", "cond": "elapsed_ge_5s", "actuator_cmd": "start_next" }
+    },
+    {
+      "desc": "逻辑表达式",
+      "value": { "to": "2", "cond_expr": "elapsed_ge_5s and (players_ge_1 or server_ready)", "actuator_cmd": "start_next" }
+    },
+    { "desc": "兜底", "value": { "to": "3", "else": true, "actuator_cmd": "fallback" } }
+  ]
+}
+
+

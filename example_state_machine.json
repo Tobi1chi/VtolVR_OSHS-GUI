@@ -1,0 +1,50 @@
+{
+    "config": [
+        "Example State Machine",
+        "Example Author"
+    ],
+    "StateMachine": [
+        {
+            "Key": "1",
+            "campaign name": "地图A",
+            "campaign id": "1234567890",
+            "mapname": "Map A",
+            "Transitions": [
+                {
+                    "to": "2",
+                    "cond_expr": "elapsed('1h') and player('ge', 6)",
+                    "actuator_cmd": "delay:5s,start_next"
+                },
+                {
+                    "to": "1",
+                    "cond_expr": "elapsed('1h') and not player('ge', 6)",
+                    "actuator_cmd": "delay:3s,restart"
+                }
+            ]
+        },
+        {
+            "Key": "2",
+            "campaign name": "地图B",
+            "campaign id": "0987654321",
+            "mapname": "Map B",
+            "Transitions": [
+                {
+                    "to": "2",
+                    "cond": "MissionStats('Failed')",
+                    "actuator_cmd": "restart"
+                },
+                {
+                    "to": "1",
+                    "cond": "MissionStats('Complete')",
+                    "actuator_cmd": "start_next"
+                },
+                {
+                    "to": "1",
+                    "cond": "elapsed('2.5h')",
+                    "actuator_cmd": "start_next"
+                }
+            ]
+        }
+    ]
+}
+

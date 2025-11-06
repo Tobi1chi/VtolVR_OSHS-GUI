@@ -2,7 +2,6 @@ import json.tool
 import sys
 import socket
 import threading
-import psutil
 import time
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QTextEdit,
@@ -11,26 +10,44 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal, QObject, QTimer
 from PyQt6.QtGui import QFont
-from core.SocketWorker import SocketWorker
+from core.Socket import SocketWorker
+from core.Socket import socket_service
 from core.SysState import SysState
 from core.StringParser import JsonParser
 from core.ServerReplyProcess import ServerReplyProcess
-
+from core.ReplayPackger import replayPacker
+from core.Timer import TimerManager
+from core.FSM import FSMEngine
+from core.FSM import fsm_actuator
+from core.FSM import get_default_condition_registry
 serverReplyProcess = ServerReplyProcess()
+rpPacker = replayPacker()
 terminal = None
 
+tm = TimerManager()
+# 旧的测试用 FSMActuator 已移除，现在使用 core.FSM.fsm_actuator
+#Private constants
+S2MS = 1000
+MIN2MS = 60 * S2MS
+H2MS = 60 * MIN2MS
 # ========== Page 1: 原始主界面 ==========
 class MainPage(QWidget):
     def __init__(self, switch_callback):
         super().__init__()
         self.switch_callback = switch_callback
-
+        self.task_running:bool = False
+        self.auto_fsm_enabled: bool = False
+        self.auto_fsm_timer = None
+        global tm
         layout = QVBoxLayout()
         self.setLayout(layout)
-
         # Top bar
         top_bar = QHBoxLayout()
         buttons = ["Connect", "Clear", "Check Host", "Config Host", "Host", "Start", "Skip", "Restart", "Quit", "Quit Server"]
+        buttons.append("Test")
+        buttons.append("Load FSM")
+        buttons.append("Run FSM")
+        buttons.append("Auto FSM")
         for name in buttons:
             btn = QPushButton(name)
             if name == "Quit":
@@ -53,6 +70,15 @@ class MainPage(QWidget):
                 btn.clicked.connect(self.quit_server)
             elif name == "Clear":
                 btn.clicked.connect(self.clear_console)
+            elif name == "Test":
+                btn.clicked.connect(self.TestFunc)
+            elif name == "Load FSM":
+                btn.clicked.connect(self.load_fsm_config)
+            elif name == "Run FSM":
+                btn.clicked.connect(self.run_fsm_step)
+            elif name == "Auto FSM":
+                btn.setCheckable(True)
+                btn.clicked.connect(self.toggle_auto_fsm)
             top_bar.addWidget(btn)
 
         self.switch_btn = QPushButton("Mission Editor")
@@ -78,6 +104,12 @@ class MainPage(QWidget):
 
         layout.addWidget(splitter)
 
+        # ===== FSM 引擎与条件注册表 =====
+        self._load_and_init_fsm()
+        
+        # 初始化自动 FSM 检测定时器（默认关闭）
+        self._init_auto_fsm_timer()
+
     def connect_terminal(self):
         self.terminal.connect_to_server()
     def host_game(self):
@@ -98,7 +130,278 @@ class MainPage(QWidget):
         self.terminal.send_command_api("exitapp")
     def clear_console(self):
         self.terminal.clear()
+    def TestFunc(self):
+        # 将 Test 按钮用作演示：第一次点击开始任务计时；第二次点击结束并评估条件推进状态与发送命令
+        if not self.task_running:
+            self.task_running = True
+            self.TestClick = True
+            # 使用 TimerManager 启动任务计时器
+            tm.start_stopwatch("task_timer")
+            # 确保 socket 已连接
+            if not socket_service.is_connected():
+                socket_service.connect()
+            # 启动 FSM 到一个起始状态（若 JSON 未指定，可选择 "1"）
+            if self.fsm_engine:
+                start_key = next(iter(self.fsm_engine.state_by_key.keys()), None)
+                if start_key:
+                    self.fsm_engine.start(start_key)
+            self.terminal.append_output("[Demo] 任务开始，已启动计时器")
+        else:
+            self.task_running = False
+            self.TestClick = False
+            # 使用 TimerManager 停止任务计时器并获取经过时间
+            elapsed = tm.stop_stopwatch("task_timer")
+            if elapsed is None:
+                elapsed = 0
+            context = {
+                "elapsed_ms": elapsed,
+                "server_ready": True,
+                "players": len(serverReplyProcess.players),
+            }
+            step_result = self.fsm_engine.step(context) if self.fsm_engine else None
+            if step_result:
+                next_key, actuator_cmd = step_result
+                current_key = self.fsm_engine.get_current()
+                
+                # 定义状态转移回调
+                def apply_transition():
+                    self.fsm_engine.apply_transition(next_key)
+                    self.terminal.append_output(f"[Demo] 状态转移完成: {current_key} -> {next_key}")
+                
+                self.terminal.append_output(f"[Demo] 任务结束，耗时 {elapsed} ms → 准备跳转状态 {next_key}")
+                if actuator_cmd:
+                    # 使用 FSM Actuator 执行器处理 action
+                    success, result, has_delay = fsm_actuator.execute(
+                        actuator_cmd, 
+                        context,
+                        on_complete=apply_transition
+                    )
+                    if success:
+                        self.terminal.append_output(f"> {actuator_cmd}")
+                        # 如果有返回结果，也显示出来
+                        if result:
+                            self.terminal.append_output(f"返回结果: {result}")
+                        
+                        # 如果没有延迟，立即应用状态转移
+                        if not has_delay:
+                            apply_transition()
+                        else:
+                            self.terminal.append_output(f"[Demo] 等待延迟操作完成后再转移状态...")
+                    else:
+                        self.terminal.append_output(f"[错误] 执行 action '{actuator_cmd}' 失败")
+                else:
+                    # 没有 action，立即应用状态转移
+                    apply_transition()
+            else:
+                self.terminal.append_output(f"[Demo] 任务结束，耗时 {elapsed} ms，无可用转移")
 
+    def _load_and_init_fsm(self, json_path: str = None):
+        """
+        加载并初始化 FSM 引擎
+        
+        Args:
+            json_path: FSM JSON 文件路径，如果为 None 则使用默认路径 state_machine1.json
+        """
+        import os, json
+        self.fsm_engine = None
+        states = []
+        
+        # 如果没有指定路径，使用默认路径
+        if json_path is None:
+            json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "state_machine1.json")
+        
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                states = data.get("StateMachine", [])
+                self.terminal.append_output(f"[FSM] 已加载配置文件: {json_path}")
+                self.terminal.append_output(f"[FSM] 状态数量: {len(states)}")
+        except FileNotFoundError:
+            self.terminal.append_output(f"[FSM] 警告: 配置文件不存在: {json_path}")
+            states = []
+        except Exception as e:
+            self.terminal.append_output(f"[FSM] 错误: 加载配置文件失败: {e}")
+            states = []
+
+        # 从配置文件加载条件注册表
+        condition_registry = get_default_condition_registry()
+        self.terminal.append_output(f"[FSM] 已注册条件数量: {len(condition_registry)}")
+
+        self.fsm_engine = FSMEngine(states, condition_registry)
+        
+        # 如果有状态，自动启动到第一个状态
+        if states:
+            start_key = next(iter(self.fsm_engine.state_by_key.keys()), None)
+            if start_key:
+                self.fsm_engine.start(start_key)
+                self.terminal.append_output(f"[FSM] 状态机已启动，当前状态: {start_key}")
+    
+    def load_fsm_config(self):
+        """从文件对话框加载 FSM 配置文件"""
+        import os
+        from PyQt6.QtWidgets import QFileDialog
+        
+        default_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "state_machine1.json")
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, 
+            "Load FSM Configuration", 
+            default_path,
+            "JSON Files (*.json)"
+        )
+        
+        if file_path:
+            self._load_and_init_fsm(file_path)
+    
+    def run_fsm_step(self):
+        """执行一次 FSM 状态转移（评估条件并执行动作）"""
+        if not self.fsm_engine:
+            self.terminal.append_output("[FSM] 错误: 状态机未初始化，请先加载 FSM 配置文件")
+            return
+        
+        current_key = self.fsm_engine.get_current()
+        if current_key is None:
+            self.terminal.append_output("[FSM] 错误: 状态机未启动")
+            return
+        
+        # 构建上下文
+        context = {
+            "elapsed_ms": tm.get_elapsed_time("task_timer") if tm.is_stopwatch_running("task_timer") else 0,
+            "server_ready": socket_service.is_connected(),
+            "players": len(serverReplyProcess.players),
+            "stage": serverReplyProcess.stage,
+            "mission_status": getattr(serverReplyProcess, 'mission_status', 'Running'),
+        }
+        
+        # 执行一步状态转移（不立即应用状态）
+        step_result = self.fsm_engine.step(context)
+        
+        if step_result:
+            next_key, actuator_cmd = step_result
+            
+            # 定义状态转移回调
+            def apply_transition():
+                self.fsm_engine.apply_transition(next_key)
+                self.terminal.append_output(f"[FSM] 状态转移完成: {current_key} -> {next_key}")
+            
+            if actuator_cmd:
+                # 执行 action，并传入完成回调
+                success, result, has_delay = fsm_actuator.execute(
+                    actuator_cmd, 
+                    context,
+                    on_complete=apply_transition if actuator_cmd else None
+                )
+                
+                if success:
+                    self.terminal.append_output(f"[FSM] 执行命令: {actuator_cmd}")
+                    if result:
+                        self.terminal.append_output(f"[FSM] 返回结果: {result}")
+                    
+                    # 如果没有延迟，立即应用状态转移
+                    if not has_delay:
+                        apply_transition()
+                    else:
+                        self.terminal.append_output(f"[FSM] 等待延迟操作完成后再转移状态...")
+                else:
+                    self.terminal.append_output(f"[FSM] 错误: 执行命令 '{actuator_cmd}' 失败")
+                    # 即使失败也应用状态转移（可选，根据需求决定）
+            else:
+                # 没有 action，立即应用状态转移
+                apply_transition()
+        else:
+            self.terminal.append_output(f"[FSM] 当前状态 {current_key} 无可用转移")
+    
+    def _init_auto_fsm_timer(self):
+        """初始化自动 FSM 检测定时器"""
+        from PyQt6.QtCore import QTimer
+        self.auto_fsm_timer = QTimer(self)
+        self.auto_fsm_timer.timeout.connect(self._auto_fsm_check)
+        # 默认每 1 秒检查一次（1000 毫秒）
+        self.auto_fsm_timer.setInterval(1000)
+    
+    def toggle_auto_fsm(self, checked: bool):
+        """切换自动 FSM 检测开关"""
+        self.auto_fsm_enabled = checked
+        if checked:
+            if not self.fsm_engine:
+                self.terminal.append_output("[FSM] 错误: 状态机未初始化，请先加载 FSM 配置文件")
+                # 重置按钮状态
+                sender = self.sender()
+                if sender:
+                    sender.setChecked(False)
+                return
+            
+            current_key = self.fsm_engine.get_current()
+            if current_key is None:
+                # 自动启动到第一个状态
+                states = list(self.fsm_engine.state_by_key.keys())
+                if states:
+                    self.fsm_engine.start(states[0])
+                    self.terminal.append_output(f"[FSM] 自动检测已启动，当前状态: {states[0]}")
+                else:
+                    self.terminal.append_output("[FSM] 错误: 状态机没有状态")
+                    sender = self.sender()
+                    if sender:
+                        sender.setChecked(False)
+                    return
+            
+            self.auto_fsm_timer.start()
+            self.terminal.append_output("[FSM] 自动检测已启用（每1秒检查一次）")
+        else:
+            self.auto_fsm_timer.stop()
+            self.terminal.append_output("[FSM] 自动检测已禁用")
+    
+    def _auto_fsm_check(self):
+        """自动 FSM 检测回调（定时器触发）"""
+        if not self.fsm_engine or not self.auto_fsm_enabled:
+            return
+        
+        current_key = self.fsm_engine.get_current()
+        if current_key is None:
+            return
+        
+        # 构建上下文（实时获取最新数据）
+        context = {
+            "elapsed_ms": tm.get_elapsed_time("task_timer") if tm.is_stopwatch_running("task_timer") else 0,
+            "server_ready": socket_service.is_connected(),
+            "players": len(serverReplyProcess.players),
+            "stage": serverReplyProcess.stage,
+            "mission_status": getattr(serverReplyProcess, 'mission_status', 'Running'),  # 需要在实际代码中设置
+        }
+        
+        # 执行一步状态转移（不立即应用状态）
+        step_result = self.fsm_engine.step(context)
+        
+        if step_result:
+            next_key, actuator_cmd = step_result
+            
+            # 定义状态转移回调
+            def apply_transition():
+                self.fsm_engine.apply_transition(next_key)
+                self.terminal.append_output(f"[FSM Auto] 状态转移完成: {current_key} -> {next_key}")
+            
+            if actuator_cmd:
+                # 执行 action，并传入完成回调
+                success, result, has_delay = fsm_actuator.execute(
+                    actuator_cmd, 
+                    context,
+                    on_complete=apply_transition
+                )
+                
+                if success:
+                    self.terminal.append_output(f"[FSM Auto] 执行命令: {actuator_cmd}")
+                    if result:
+                        self.terminal.append_output(f"[FSM Auto] 返回结果: {result}")
+                    
+                    # 如果没有延迟，立即应用状态转移
+                    if not has_delay:
+                        apply_transition()
+                    else:
+                        self.terminal.append_output(f"[FSM Auto] 等待延迟操作完成后再转移状态...")
+                else:
+                    self.terminal.append_output(f"[FSM Auto] 错误: 执行命令 '{actuator_cmd}' 失败")
+            else:
+                # 没有 action，立即应用状态转移
+                apply_transition()
 # ========== Terminal 组件（不变） ==========
 class TerminalWidget(QWidget):
     def __init__(self):
@@ -118,8 +421,9 @@ class TerminalWidget(QWidget):
         self.layout.addWidget(self.input)
 
         self.input.installEventFilter(self)
-        
-        self.socket_worker = SocketWorker()
+
+        # 使用全局 SocketService 的 worker，保持属性名不变以兼容其他代码
+        self.socket_worker = socket_service.worker
         self.socket_worker.message_received.connect(self.onReceive)
         self.socket_worker.debug_received.connect(self.append_output)
         #self.socket_worker.message_received.connect(JsonParser.test)
@@ -151,14 +455,14 @@ class TerminalWidget(QWidget):
         self.output.append(text)
     
     def connect_to_server(self):
-        self.socket_worker.connect_socket()
+        socket_service.connect()
 
     def send_command_api(self, command:str, auto=False):
         # Avoid repeated auto command
         if auto and self.auto_command:
             return
         self.auto_command = auto
-        self.socket_worker.send_command(command)
+        socket_service.send_command(command)
         if not auto:
             self.output.append(f"> {command}")
     
@@ -171,7 +475,7 @@ class DashboardWidget(QWidget):
         super().__init__()
         layout = QVBoxLayout()
         self.setLayout(layout)
-
+        self.stagestate:bool = False
         # Core utils
         self.stats = SysState()
 
@@ -226,7 +530,7 @@ class DashboardWidget(QWidget):
         combo_layout.addStretch()
 
         # Checkboxes
-        self.check1 = QCheckBox("Enable Feature X")
+        self.check1 = QCheckBox("Auto get stage")
         self.check2 = QCheckBox("Auto-refresh")
         check_layout = QHBoxLayout()
         check_layout.addWidget(self.check1)
@@ -245,6 +549,7 @@ class DashboardWidget(QWidget):
         self.auto_refresh_timer = QTimer(self)
         self.auto_refresh_timer.timeout.connect(self._auto_refresh_display)
         self.check2.stateChanged.connect(self._toggle_auto_refresh)
+        self.check1.stateChanged.connect(self._stagestate)
 
         # Initial display
         self.update_display("States")
@@ -275,6 +580,11 @@ class DashboardWidget(QWidget):
         global terminal
         terminalAvail = (not terminal is None) and terminal.socket_worker.running
         # Generate content based on mode
+        if self.stagestate:
+            terminal.send_command_api("getstage", True)
+            print(serverReplyProcess.stage)
+            # 旧的测试代码已移除
+
         if mode == "States":
             processName = "VTOLVR.exe"
             mem = self.stats.memory
@@ -316,4 +626,7 @@ class DashboardWidget(QWidget):
         scrollbarpos = self.display_area.verticalScrollBar().value()
         self.display_area.setText(content)
         self.display_area.verticalScrollBar().setValue(scrollbarpos)
+
+    def _stagestate(self):
+        self.stagestate = not self.stagestate
 
