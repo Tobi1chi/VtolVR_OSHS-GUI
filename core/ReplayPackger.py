@@ -90,8 +90,7 @@ class ReplayPackerTimer(replayPacker):
         Event.append(datetime.datetime.utcnow())
         self.TimerEvent.append(Event.copy())
         return Event.copy()
-    # def StopTimer(self, name:str):
-    #     self.TimerEvent.
+
 
 
 def main():

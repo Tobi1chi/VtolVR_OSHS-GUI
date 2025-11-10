@@ -97,7 +97,7 @@ class MainPage(QWidget):
         global terminal
         terminal = self.terminal
         # Right: Dashboard
-        self.dashboard = DashboardWidget()
+        self.dashboard = DashboardWidget(self.terminal)
 
         splitter.addWidget(self.terminal)
         splitter.addWidget(self.dashboard)
@@ -488,6 +488,7 @@ class TerminalWidget(QWidget):
         self.parser = JsonParser("Socket")
         self.dict_json = {}
         self.auto_command = False
+        self.debug_mode = False  # Debug mode flag
 
     def eventFilter(self, obj, event):
         if obj == self.input and event.type() == event.Type.KeyPress:
@@ -503,9 +504,16 @@ class TerminalWidget(QWidget):
     def onReceive(self, text:str):
         self.dict_json = self.parser.todict(text)
         if self.dict_json != {}:
+            # Check if debug mode is disabled and if message is GetStage or GetFlightLog
+            should_show = True
+            if not self.debug_mode:
+                # In non-debug mode, filter out GetStage and GetFlightLog messages
+                if self.dict_json.get('src') in ['GetStage', 'GetFlightLog','ListPlayer','ListActors']:
+                    should_show = False
+            
             if self.auto_command and self.dict_json['type'] == 'r':
                 self.auto_command = False
-            else:
+            elif should_show:
                 self.append_output(json.dumps(self.dict_json, indent=4, ensure_ascii=False))
             serverReplyProcess.process(self.dict_json)
     
@@ -529,8 +537,9 @@ class TerminalWidget(QWidget):
 
 # ========== Dashboard Component ==========
 class DashboardWidget(QWidget):
-    def __init__(self):
+    def __init__(self, terminal_widget):
         super().__init__()
+        self.terminal_widget = terminal_widget  # Reference to terminal widget for debug mode control
         layout = QVBoxLayout()
         self.setLayout(layout)
         # Core utils
@@ -588,8 +597,10 @@ class DashboardWidget(QWidget):
 
         # Checkboxes
         self.check_auto_refresh = QCheckBox("Auto-refresh (All States)")
+        self.check_debug_mode = QCheckBox("Debug Mode (Show All Server Replies)")
         check_layout = QHBoxLayout()
         check_layout.addWidget(self.check_auto_refresh)
+        check_layout.addWidget(self.check_debug_mode)
         check_layout.addStretch()
 
         # Assemble main layout
@@ -604,6 +615,9 @@ class DashboardWidget(QWidget):
         self.auto_refresh_timer = QTimer(self)
         self.auto_refresh_timer.timeout.connect(self._auto_refresh_display)
         self.check_auto_refresh.stateChanged.connect(self._toggle_auto_refresh)
+        
+        # Debug mode control
+        self.check_debug_mode.stateChanged.connect(self._toggle_debug_mode)
 
         # Initial display
         self.update_display("States")
@@ -614,6 +628,13 @@ class DashboardWidget(QWidget):
             self.auto_refresh_timer.start(1000)  # 1 second
         else:
             self.auto_refresh_timer.stop()
+    
+    def _toggle_debug_mode(self, state):
+        """Toggle debug mode switch"""
+        if state == Qt.CheckState.Checked.value:  # PyQt6
+            self.terminal_widget.debug_mode = True
+        else:
+            self.terminal_widget.debug_mode = False
 
     def _auto_refresh_display(self):
         """
