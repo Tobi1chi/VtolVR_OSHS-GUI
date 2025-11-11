@@ -41,7 +41,7 @@ class MainPage(QWidget):
         self.switch_callback = switch_callback
         self.task_running:bool = False
         self.auto_fsm_enabled: bool = False
-        self.auto_fsm_timer = None
+        self.auto_fsm_timer_name = f"auto_fsm_timer_{id(self)}"
         self.fsm_engine = None
         self._fsm_started = False
         self.fsm_json_path: Optional[str] = None
@@ -297,8 +297,10 @@ class MainPage(QWidget):
         self._save_session_logs()
         self._prepare_next_session()
         self.terminal.send_command_api("start")
+        tm.start_stopwatch("task_timer")
     def skip_game(self):
         self.terminal.send_command_api("skip")
+        tm.stop_stopwatch("task_timer")
     def restart_game(self):
         # Save current session logs before restart
         self._save_session_logs()
@@ -309,8 +311,10 @@ class MainPage(QWidget):
         self._save_session_logs()
         self._prepare_next_session()
         self.terminal.send_command_api("quit")
+        tm.stop_stopwatch("task_timer")
     def quit_server(self):
         self.terminal.send_command_api("exitapp")
+        tm.stop_stopwatch("task_timer")
     def clear_console(self):
         self.terminal.clear()
     def TestFunc(self):
@@ -391,8 +395,7 @@ class MainPage(QWidget):
         self.fsm_engine = None
         self._fsm_started = False
         self.auto_fsm_enabled = False
-        if self.auto_fsm_timer:
-            self.auto_fsm_timer.stop()
+        tm.stop_timer(self.auto_fsm_timer_name)
         self.dashboard.set_auto_fsm_checked(False)
 
         states = []
@@ -512,11 +515,7 @@ class MainPage(QWidget):
     
     def _init_auto_fsm_timer(self):
         """Initialize auto FSM detection timer"""
-        from PyQt6.QtCore import QTimer
-        self.auto_fsm_timer = QTimer(self)
-        self.auto_fsm_timer.timeout.connect(self._auto_fsm_check)
-        # Default: check every 1 second (1000 milliseconds)
-        self.auto_fsm_timer.setInterval(1000)
+        tm.stop_timer(self.auto_fsm_timer_name)
     
     def toggle_auto_fsm(self, checked: bool):
         """Toggle auto FSM detection switch"""
@@ -532,13 +531,11 @@ class MainPage(QWidget):
                 self.auto_fsm_enabled = False
                 return
             self.auto_fsm_enabled = True
-            if self.auto_fsm_timer:
-                self.auto_fsm_timer.start()
+            tm.start_timer(self.auto_fsm_timer_name, 1000, self._auto_fsm_check)
             self.terminal.append_output("[FSM] Auto-detection enabled (checking every 1 second)")
         else:
             self.auto_fsm_enabled = False
-            if self.auto_fsm_timer:
-                self.auto_fsm_timer.stop()
+            tm.stop_timer(self.auto_fsm_timer_name)
             self.dashboard.set_auto_fsm_checked(False)
             self.terminal.append_output("[FSM] Auto-detection disabled")
     
@@ -549,8 +546,7 @@ class MainPage(QWidget):
 
         if not self._ensure_fsm_started("Auto FSM"):
             self.auto_fsm_enabled = False
-            if self.auto_fsm_timer:
-                self.auto_fsm_timer.stop()
+            tm.stop_timer(self.auto_fsm_timer_name)
             self.dashboard.set_auto_fsm_checked(False)
             return
         
