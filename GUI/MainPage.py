@@ -5,6 +5,7 @@ import threading
 import time
 import datetime
 import uuid
+from pathlib import Path
 from typing import Optional, Dict, Any
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QTextEdit,
@@ -45,6 +46,9 @@ class MainPage(QWidget):
         self.fsm_engine = None
         self._fsm_started = False
         self.fsm_json_path: Optional[str] = None
+        self.external_script_module = None
+        self.external_script_path: Optional[str] = None
+        self.external_script_thread: Optional[threading.Thread] = None
         global tm
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -380,23 +384,73 @@ class MainPage(QWidget):
         self.dashboard.set_fsm_controls_enabled(controls_enabled)
     
     def load_fsm_config(self):
-        """Load FSM configuration file from file dialog"""
+        """Load FSM configuration (JSON) or外部脚本（PY）"""
         import os
         from PyQt6.QtWidgets import QFileDialog
-        
-        default_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "state_machine1.json")
+        default_dir = os.path.dirname(os.path.dirname(__file__))
+        default_path = os.path.join(default_dir, "state_machine1.json")
         file_path, _ = QFileDialog.getOpenFileName(
-            self, 
-            "Load FSM Configuration", 
+            self,
+            "Load FSM 或脚本",
             default_path,
-            "JSON Files (*.json)"
+            "FSM/Script Files (*.json *.py)"
         )
-        
-        if file_path:
+        if not file_path:
+            return
+        if file_path.endswith(".py"):
+            self._load_external_script(file_path)
+        else:
+            self.external_script_module = None
+            self.external_script_path = None
+            self.external_script_thread = None
             self._load_and_init_fsm(file_path)
+
+    def _load_external_script(self, script_path: str):
+        import importlib.util
+        module_name = Path(script_path).stem
+        spec = importlib.util.spec_from_file_location(module_name, script_path)
+        if spec is None or spec.loader is None:
+            self.terminal.append_output(f"[Script] 无法加载脚本: {script_path}")
+            return
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        self.external_script_module = module
+        self.external_script_path = script_path
+        self.fsm_engine = None
+        self._fsm_started = False
+        self.auto_fsm_enabled = False
+        tm.stop_timer(self.auto_fsm_timer_name)
+        self.dashboard.set_auto_fsm_checked(False)
+        self.dashboard.set_fsm_controls_enabled(True)
+        self.terminal.append_output(f"[Script] 已加载脚本: {script_path}")
     
+    def _run_external_script(self):
+        if not self.external_script_module:
+            self.terminal.append_output("[Script] 未加载外部脚本")
+            return
+        if self.external_script_thread and self.external_script_thread.is_alive():
+            self.terminal.append_output("[Script] 脚本正在运行中...")
+            return
+        runner = getattr(self.external_script_module, "run", None)
+        if not callable(runner):
+            self.terminal.append_output("[Script] 脚本缺少 run() 函数")
+            return
+
+        def worker():
+            self.terminal.append_output(f"[Script] 开始执行: {self.external_script_path}")
+            runner()
+            self.terminal.append_output("[Script] 脚本执行完成")
+
+        self.external_script_thread = threading.Thread(target=worker, daemon=True)
+        self.external_script_thread.start()
+
     def run_fsm_step(self):
         """Execute one FSM state transition (evaluate conditions and execute actions)"""
+        if self.external_script_module is not None:
+            self._run_external_script()
+            return
+
         if not self.fsm_engine:
             self.terminal.append_output("[FSM] Error: State machine not initialized, please load FSM config file first")
             return
@@ -462,6 +516,12 @@ class MainPage(QWidget):
     
     def toggle_auto_fsm(self, checked: bool):
         """Toggle auto FSM detection switch"""
+        if self.external_script_module is not None:
+            self.terminal.append_output("[Script] 外部脚本模式不支持自动 FSM")
+            self.dashboard.set_auto_fsm_checked(False)
+            self.auto_fsm_enabled = False
+            return
+
         if not self.fsm_engine:
             self.terminal.append_output("[FSM] Error: State machine not initialized, please load FSM config file first")
             self.dashboard.set_auto_fsm_checked(False)
