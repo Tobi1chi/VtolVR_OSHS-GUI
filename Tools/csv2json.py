@@ -1,4 +1,4 @@
-import pandas as pd
+import panda as pd
 import json
 
 # Example data (replace with pd.read_csv('your_file.csv'))

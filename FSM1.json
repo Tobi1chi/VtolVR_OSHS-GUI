@@ -34,6 +34,19 @@
                     "actuator_cmd": "write_terminal('To 1')"
                 }
             ]
+        },
+        {
+            "Key": "3",
+            "campaign name": "BVR hMap3",
+            "campaign id": "2860956181",
+            "mapname": "BVR hMap3",
+            "Transitions": [
+                {
+                    "to": "2",
+                    "cond": "elapsed('10s')",
+                    "actuator_cmd": "delay:10s,write_terminal('To 2')"
+                }
+            ]
         }
     ]
 }

@@ -1,6 +1,8 @@
+import uuid
 from typing import Callable, Dict, Optional, Any, Union, Tuple, List
 from core.Socket.socket_service import socket_service
-from PyQt6.QtCore import QTimer, QObject
+from PyQt6.QtCore import QObject
+from core.Timer import TimerManager
 
 # Import unified function registry
 try:
@@ -20,8 +22,9 @@ class FSMActuator(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.action_registry: Dict[str, Callable[[str, dict], Optional[Union[bool, Dict[str, Any]]]]] = {}
-        self._pending_delays: Dict[int, QTimer] = {}  # Store pending delayed tasks
-        self._pending_transitions: Dict[int, tuple] = {}  # Store pending state transitions (timer_id, next_key, callback)
+        self.timer_manager = TimerManager(self)
+        self._pending_delays: Dict[str, Dict[str, Any]] = {}
+        self._pending_transitions: Dict[str, Callable[[], None]] = {}
         self._register_default_actions()
         # Register unified functions as action handlers (using "func" prefix)
         self._register_unified_functions()
@@ -56,12 +59,7 @@ class FSMActuator(QObject):
             if delay_ms <= 0:
                 return {"ok": False, "error": f"Invalid delay time: {time_str}"}
             
-            # Create delay timer (using self as parent object)
-            timer = QTimer(self)
-            timer.setSingleShot(True)
-            
-            # Set callback to execute after delay
-            timer_id = id(timer)
+            timer_name = f"fsm_delay_{id(self)}_{uuid.uuid4().hex}"
             def delayed_execute():
                 if delayed_command:
                     # Execute command after delay
@@ -76,22 +74,17 @@ class FSMActuator(QObject):
                     except:
                         print(f"[FSMActuator Delay] Executed command after {time_str} delay: {delayed_command}, result: {success}")
                 
-                # Check if there's a pending state transition callback (called after delay completes)
-                if timer_id in self._pending_transitions:
-                    _, _, callback = self._pending_transitions[timer_id]
-                    if callback:
-                        callback()
-                    del self._pending_transitions[timer_id]
-                
-                # Clean up timer reference
-                if timer_id in self._pending_delays:
-                    del self._pending_delays[timer_id]
+                callback = self._pending_transitions.pop(timer_name, None)
+                if callback:
+                    callback()
+                self._pending_delays.pop(timer_name, None)
             
-            timer.timeout.connect(delayed_execute)
-            timer.start(delay_ms)
-            
-            # Save timer reference (prevent garbage collection)
-            self._pending_delays[id(timer)] = timer
+            self._start_single_shot_timer(timer_name, delay_ms, delayed_execute)
+            self._pending_delays[timer_name] = {
+                "name": timer_name,
+                "command": delayed_command,
+                "delay_ms": delay_ms,
+            }
             
             # Output delay info to terminal (if available)
             try:
@@ -101,17 +94,29 @@ class FSMActuator(QObject):
             except:
                 pass
             
-            timer_id = id(timer)
             return {
                 "ok": True,
                 "delay_ms": delay_ms,
                 "delay_str": time_str,
                 "delayed_command": delayed_command,
-                "timer_id": timer_id,  # Return timer ID for callback association
+                "timer_name": timer_name,
                 "message": f"Delay set to {time_str}, will execute command after delay"
             }
         
         self.register_action("delay", delay_handler)
+
+    def _start_single_shot_timer(self, timer_name: str, interval_ms: int, callback: Callable[[], None]) -> None:
+        """
+        Helper to start a single-shot timer managed by TimerManager.
+        Ensures timer cleanup after execution.
+        """
+        def wrapper():
+            try:
+                callback()
+            finally:
+                self.timer_manager.stop_timer(timer_name)
+
+        self.timer_manager.start_timer(timer_name, interval_ms, wrapper, single_shot=True)
     
     def _set_delay_complete_callback(self, delay_result: Dict[str, Any], callback: Callable[[], None]):
         """
@@ -121,9 +126,9 @@ class FSMActuator(QObject):
             delay_result: Return result of delay operation (contains timer_id)
             callback: Callback function to call after delay completes
         """
-        timer_id = delay_result.get("timer_id")
-        if timer_id and timer_id in self._pending_delays:
-            self._pending_transitions[timer_id] = (timer_id, None, callback)
+        timer_name = delay_result.get("timer_name") or delay_result.get("timer_id")
+        if timer_name and timer_name in self._pending_delays:
+            self._pending_transitions[timer_name] = callback
     
     def _parse_time_string(self, time_str: str) -> int:
         """
@@ -353,25 +358,44 @@ class FSMActuator(QObject):
             campaign_id = parts[0].strip()
             mapname = parts[1].strip()
             
-            # Execute configuration command sequence (use QTimer for delayed sending to avoid blocking)
-            commands = [
+            # Execute configuration command sequence using TimerManager for non-blocking scheduling
+            command_1 = [
                 f"sethost campaign {campaign_id}",
                 f"sethost mission {mapname}",
                 "config",
+                "checkhost",
                 "host"
             ]
-            
-            # Use QTimer to send commands sequentially, with 100ms interval between each
+            command_2 = [
+                f"sethost campaign {campaign_id}",
+                f"sethost mission {mapname}",
+                "checkhost",
+                "config",
+                "restart"
+            ]
+
+
+            commands = command_1
+            # Use TimerManager to send commands sequentially, with 100ms interval between each
             delay = 0
-            for i, cmd in enumerate(commands):
-                def make_sender(cmd_to_send):
-                    def send():
-                        socket_service.send_command(cmd_to_send)
-                    return send
+            base_timer_name = f"fsm_init_{id(self)}_{uuid.uuid4().hex}"
+            for index, cmd in enumerate(commands):
+                timer_name = f"{base_timer_name}_{index}"
+
+                def send_command(command_to_send: str):
+                    def _send():
+                        socket_service.send_command(command_to_send)
+                    return _send
+
+                self._start_single_shot_timer(timer_name, delay, send_command(cmd))
                 
-                QTimer.singleShot(delay, make_sender(cmd))
                 delay += 100  # 100ms interval between each command
-            
+            try:
+                from GUI.MainPage import tm
+                if not tm.is_stopwatch_running("task_timer"):
+                    tm.start_stopwatch("task_timer")
+            except Exception as exc:
+                print(f"[FSMActuator Init] Warning: failed to start task_timer stopwatch: {exc}")
             return {
                 "ok": True,
                 "campaign_id": campaign_id,

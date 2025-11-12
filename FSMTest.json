@@ -1,0 +1,39 @@
+{
+    "config": [
+        "Test FSM",
+        "Tobiichi Eigetsu"
+    ],
+    "GlobalValues": {
+        "retry_count": 0,
+        "current_stage": "",
+        "last_result": ""
+    },
+    "StateMachine": [
+        {
+            "Key": "1",
+            "campaign name": "3V3 F-26",
+            "campaign id": "2852088319",
+            "mapname": "3V3 F-26",
+            "Transitions": [
+                {
+                    "to": "2",
+                    "cond": "elapsed('6m')",
+                    "actuator_cmd": "write_terminal('To 2'),delay:20s"
+                }
+            ]
+        },
+        {
+            "Key": "2",
+            "campaign name": "3V3 F-26",
+            "campaign id": "2852088319",
+            "mapname": "3V3 F-26",
+            "Transitions": [
+                {
+                    "to": "1",
+                    "cond": "elapsed('6m')",
+                    "actuator_cmd": "write_terminal('To 1'),delay:20s"
+                }
+            ]
+        }
+    ]
+}
