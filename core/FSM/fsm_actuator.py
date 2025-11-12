@@ -389,7 +389,7 @@ class FSMActuator(QObject):
 
                 self._start_single_shot_timer(timer_name, delay, send_command(cmd))
                 
-                delay += 100  # 100ms interval between each command
+                delay += 10*1000  # 100ms interval between each command
             try:
                 from GUI.MainPage import tm
                 if not tm.is_stopwatch_running("task_timer"):

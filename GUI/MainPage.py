@@ -318,64 +318,7 @@ class MainPage(QWidget):
     def clear_console(self):
         self.terminal.clear()
     def TestFunc(self):
-        # Use Test button as demo: first click starts task timer; second click ends and evaluates conditions to advance state and send commands
-        if not self.task_running:
-            self.task_running = True
-            self.TestClick = True
-            # Use TimerManager to start task timer
-            tm.start_stopwatch("task_timer")
-            # Ensure socket is connected
-            if not socket_service.is_connected():
-                socket_service.connect()
-            # Start FSM to an initial state (if not specified in JSON, can choose "1")
-            if self.fsm_engine:
-                self._ensure_fsm_started("Demo")
-            self.terminal.append_output("[Demo] Task started, timer started")
-        else:
-            self.task_running = False
-            self.TestClick = False
-            # Use TimerManager to stop task timer and get elapsed time
-            elapsed = tm.stop_stopwatch("task_timer")
-            if elapsed is None:
-                elapsed = 0
-            context = self._build_fsm_context(include_elapsed=False)
-            context["elapsed_ms"] = int(elapsed)
-            step_result = self.fsm_engine.step(context) if self.fsm_engine else None
-            if step_result:
-                next_key, actuator_cmd = step_result
-                current_key = self.fsm_engine.get_current()
-                
-                # Define state transition callback
-                def apply_transition():
-                    self.fsm_engine.apply_transition(next_key)
-                    self.terminal.append_output(f"[Demo] State transition completed: {current_key} -> {next_key}")
-                
-                self.terminal.append_output(f"[Demo] Task ended, elapsed {elapsed} ms → preparing to transition to state {next_key}")
-                if actuator_cmd:
-                    # Use FSM Actuator executor to handle action
-                    success, result, has_delay = fsm_actuator.execute(
-                        actuator_cmd, 
-                        context,
-                        on_complete=apply_transition
-                    )
-                    if success:
-                        self.terminal.append_output(f"> {actuator_cmd}")
-                        # If there's a return result, display it too
-                        if result:
-                            self.terminal.append_output(f"Return result: {result}")
-                        
-                        # If no delay, apply state transition immediately
-                        if not has_delay:
-                            apply_transition()
-                        else:
-                            self.terminal.append_output(f"[Demo] Waiting for delay operation to complete before transition...")
-                    else:
-                        self.terminal.append_output(f"[Error] Failed to execute action '{actuator_cmd}'")
-                else:
-                    # No action, apply state transition immediately
-                    apply_transition()
-            else:
-                self.terminal.append_output(f"[Demo] Task ended, elapsed {elapsed} ms, no available transition")
+        terminal.append_output("[TestFunc]")
 
     def _load_and_init_fsm(self, json_path: Optional[str] = None):
         """
