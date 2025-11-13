@@ -6,7 +6,6 @@ class ServerReplyProcess:
         self.logs = []
         self.players = []
         self.actors = []
-        self.stage = ""
         self.lastState = ""
         self.flightlog = []  # Store current session's flightlog
         self.debuglog = []   # Reserved: Store current session's debuglog
@@ -15,7 +14,6 @@ class ServerReplyProcess:
             'OnChatMsg': self.processChatMessage,
             'ListActors': self.processListActors,
             'ListPlayer': self.processListPlayer,
-            'GetStage' : self.processGetStage,
             'GetFlightLog': self.processGetFlightLog
         }
         
@@ -23,7 +21,6 @@ class ServerReplyProcess:
         self.commandMap = {
             'actors': 'list all',      # Get all Actors
             'players': 'player',        # Get player list
-            'stage': 'getstage',        # Get current stage
             'flightlog': 'flightlog',   # Get flight log
         }
 
@@ -36,9 +33,6 @@ class ServerReplyProcess:
 
     def processListPlayer(self, msg):
         self.players = [u for u in msg]
-    
-    def processGetStage(self, msg):
-        self.stage = msg
     
     def processGetFlightLog(self, msg):
         """
@@ -75,11 +69,10 @@ class ServerReplyProcess:
         Batch request multiple states
         
         Args:
-            state_types: List of state types to request, valid values: 'actors', 'players', 'stage'
+            state_types: List of state types to request, valid values: 'actors', 'players', 'flightlog'
         
         Example:
-            serverReplyProcess.request_states(['actors', 'players', 'stage'])
-            serverReplyProcess.request_states(['stage', 'players'])
+            serverReplyProcess.request_states(['actors', 'players'])
         """
         if not socket_service.is_connected():
             print("[ServerReplyProcess] Warning: Socket not connected, cannot send request")
@@ -94,9 +87,9 @@ class ServerReplyProcess:
     
     def request_all_states(self):
         """
-        Request all available states (actors, players, stage)
+        Request all available states (actors, players)
         """
-        self.request_states(['actors', 'players', 'stage'])
+        self.request_states(['actors', 'players'])
 
     def process(self, reply):
         if reply['type'] == 'd' or reply['type'] == 'r':

@@ -12,20 +12,41 @@ class SocketWorker(QObject):
         self.port = port
         self.sock = None
         self.running = False
-        self.queue = None
+        self.queue = queue.Queue()  # Create queue once, reuse it
+        self.listen_thread = None
+        self._auto_reconnect = False  # Control auto-reconnect
 
-    def connect_socket(self):
+    def connect_socket(self, auto_reconnect=False):
+        """
+        Connect to socket server
+        
+        Args:
+            auto_reconnect: If True, enable auto-reconnect on disconnect
+        """
+        # Prevent multiple connection attempts
+        if self.running or (self.listen_thread and self.listen_thread.is_alive()):
+            self.debug_received.emit(f"[Warning] Connection already exists or thread still running")
+            return
+        
+        self._auto_reconnect = auto_reconnect
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect((self.host, self.port))
             self.sock.setblocking(False)
             self.running = True
             self.debug_received.emit(f"[Info] Connected to server {self.host}:{self.port}")
-            self.queue = queue.Queue()
+            # Don't create new queue, reuse existing one to preserve messages
             self.listen_thread = threading.Thread(target=self._listen, daemon=True)
             self.listen_thread.start()
         except Exception as e:
-            self.debug_received.emit(f"[Error] {e}")
+            self.debug_received.emit(f"[Error] Connection failed: {e}")
+            self.running = False
+            if self.sock:
+                try:
+                    self.sock.close()
+                except Exception:
+                    pass
+                self.sock = None
 
     def _listen(self):
         binary_buffer = bytes()  # Use binary buffer to store undecoded data
@@ -98,14 +119,49 @@ class SocketWorker(QObject):
                     self.debug_received.emit(f"[Recv Error] {e}")
                     break
             # Try send data
-            if not self.queue.empty():
-                # Get command from queue
-                cmd = self.queue.get_nowait()
-                self.sock.sendall((cmd + '\n').encode('utf-8'))
+            try:
+                if self.sock is not None and not self.queue.empty():
+                    # Get command from queue
+                    cmd = self.queue.get_nowait()
+                    try:
+                        self.sock.sendall((cmd + '\n').encode('utf-8'))
+                    except BlockingIOError:
+                        # Send buffer full, put command back to queue
+                        try:
+                            self.queue.put_nowait(cmd)
+                        except Exception:
+                            pass
+            except (OSError, AttributeError) as e:
+                # Connection error during send
+                self.debug_received.emit(f"[Send Error] {e}")
+                break
+            except Exception as e:
+                # Skip BlockingIOError for queue operations
+                if type(e) is not BlockingIOError:
+                    self.debug_received.emit(f"[Send Error] {e}")
+                    break
           
         self.debug_received.emit(f"[SocketWorker] {self.host}:{self.port} disconnected")
-        self.sock.close()  
+        
+        # Close socket safely
+        if self.sock is not None:
+            try:
+                self.sock.close()
+            except Exception:
+                pass
+            self.sock = None
+        
+        # Set running to False
         self.running = False
+        
+        # Auto-reconnect if enabled
+        if self._auto_reconnect:
+            import time
+            time.sleep(1)  # Wait 1 second before reconnecting to prevent rapid reconnection loops
+            try:
+                self.connect_socket(auto_reconnect=True)
+            except Exception as e:
+                self.debug_received.emit(f"[Reconnect Error] {e}")
     
     def send_command(self, cmd: str):
         if self.queue and self.running:
@@ -115,6 +171,14 @@ class SocketWorker(QObject):
                 self.debug_received.emit(f"[Send Error] {e}")
 
     def close(self):
+        """
+        Close socket connection and disable auto-reconnect
+        """
+        self._auto_reconnect = False  # Disable auto-reconnect when manually closed
         self.running = False
         if self.sock:
-            self.sock.close()
+            try:
+                self.sock.close()
+            except Exception:
+                pass
+            self.sock = None

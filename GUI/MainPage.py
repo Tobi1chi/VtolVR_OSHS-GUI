@@ -144,7 +144,6 @@ class MainPage(QWidget):
             "elapsed_ms": elapsed_ms,
             "server_ready": socket_service.is_connected(),
             "players": len(serverReplyProcess.players),
-            "stage": serverReplyProcess.stage,
             "mission_status": getattr(serverReplyProcess, 'mission_status', 'Running'),
         }
         if self.fsm_engine:
@@ -240,7 +239,6 @@ class MainPage(QWidget):
 
             metadata = {
                 "session_uuid": session_uuid,
-                "stage": getattr(serverReplyProcess, "stage", None) or None,
                 "state_key": state_key,
                 "map_name": state_meta.get("mapname") or state_meta.get("map_name"),
                 "campaign_name": state_meta.get("campaign name")
@@ -645,11 +643,11 @@ class TerminalWidget(QWidget):
     def onReceive(self, text:str):
         self.dict_json = self.parser.todict(text)
         if self.dict_json != {}:
-            # Check if debug mode is disabled and if message is GetStage or GetFlightLog
+            # Check if debug mode is disabled and if message should be filtered
             should_show = True
             if not self.debug_mode:
-                # In non-debug mode, filter out GetStage and GetFlightLog messages
-                if self.dict_json.get('src') in ['GetStage', 'GetFlightLog','ListPlayer','ListActors']:
+                # In non-debug mode, filter out GetFlightLog, ListPlayer, and ListActors messages
+                if self.dict_json.get('src') in ['GetFlightLog','ListPlayer','ListActors']:
                     should_show = False
             
             if self.auto_command and self.dict_json['type'] == 'r':
@@ -892,7 +890,7 @@ class DashboardWidget(QWidget):
             return
         
         # Request all states on each auto-refresh
-        serverReplyProcess.request_all_states()  # Request actors, players, stage
+        serverReplyProcess.request_all_states()  # Request actors, players
         terminal.send_command_api("flightlog", auto=True)  # Request flightlog
         
         # Determine current mode and update display

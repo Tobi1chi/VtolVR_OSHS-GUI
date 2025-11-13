@@ -1,0 +1,79 @@
+[0:08:40] Hartmann has connected.
+[0:09:06] Hartmann has disconnected.
+[0:16:41] Kvass has connected.
+[0:17:22] Kvass has disconnected.
+[0:21:10] 123123 has connected.
+[0:21:53] 123123 has spawned.
+[0:31:45] F/A-26B (123123) was killed.
+[0:37:27] G has connected.
+[0:38:20] 123123 has spawned.
+[0:38:44] G has spawned.
+[0:40:10] sltan has connected.
+[0:40:19] patko2016 has connected.
+[0:40:36] patko2016 has spawned.
+[0:40:43] sltan has spawned.
+[0:41:24] SIRIS7AK has connected.
+[0:41:40] SIRIS7AK has spawned.
+[0:43:02] 123123 killed F/A-26B (G) with AIM-120C.
+[0:43:05] G killed F/A-26B (123123) with AIM-120C.
+[0:43:15] Pako has connected.
+[0:43:18] 123123 has spawned.
+[0:43:25] G has spawned.
+[0:44:03] F-45A (patko2016) was killed.
+[0:44:12] patko2016 has spawned.
+[0:44:25] vito has connected.
+[0:44:54] Pako has spawned.
+[0:45:41] Berat has connected.
+[0:47:04] Berat has spawned.
+[0:48:15] 123123 killed F/A-26B (G) with AIM-120C.
+[0:48:27] G has spawned.
+[0:49:07] F/A-26B (sltan) was killed.
+[0:49:15] G has spawned.
+[0:49:25] sltan has spawned.
+[0:50:05] Berat has disconnected.
+[0:50:32] 123123 killed F/A-26B (sltan) with AIM-120C.
+[0:50:44] sltan has spawned.
+[0:50:46] Pako pulled Pako's eject handle!
+[0:50:46] T-55 (vito, Pako) ejected.
+[0:50:47] 123123 killed T-55 (vito, Pako) with AIRS-T.
+[0:50:47] T-55 (vito, Pako) ejected.
+[0:50:56] mig has connected.
+[0:50:57] G killed F/A-26B (SIRIS7AK) with AIM-120C.
+[0:51:00] 123123 killed F/A-26B (G) with AIM-7.
+[0:51:04] Pako has spawned.
+[0:51:14] F/A-26B (123123) was killed.
+[0:51:20] mig has spawned.
+[0:51:54] patko2016 killed F/A-26B (sltan) with AIM-120D.
+[0:52:01] sltan has spawned.
+[0:52:46] G has spawned.
+[0:53:53] F/A-26B (sltan) was killed.
+[0:53:55] YelloMonkeGT has connected.
+[0:54:12] sltan has spawned.
+[0:54:13] patko2016 killed T-55 (vito, Pako) with AIM-120D.
+[0:54:15] Pako pulled Pako's eject handle!
+[0:54:15] T-55 (vito, Pako) ejected.
+[0:54:16] T-55 (vito, Pako) ejected.
+[0:54:24] F/A-26B (mig) was killed.
+[0:54:40] SIRIS7AK has spawned.
+[0:54:41] 123123 has spawned.
+[0:54:42] paul has connected.
+[0:54:44] mig has spawned.
+[0:54:47] vito has disconnected.
+[0:55:05] paul has spawned.
+[0:55:14] YelloMonkeGT has spawned.
+[0:55:26] patko2016 killed F/A-26B (G) with AIM-9+.
+[0:55:30] G killed F-45A (patko2016) with AIRS-T.
+[0:55:36] G has spawned.
+[0:55:43] patko2016 has spawned.
+[0:56:17] vito has connected.
+[0:57:20] vito has spawned.
+[0:57:40] F/A-26B (YelloMonkeGT) was killed.
+[0:57:41] Pako has spawned.
+[0:58:37] YelloMonkeGT has spawned.
+[0:58:49] 123123 killed F/A-26B (sltan) with AIM-120C.
+[0:58:54] AV-42C (YelloMonkeGT) was killed.
+[0:59:02] YelloMonkeGT has spawned.
+[0:59:09] sltan has disconnected.
+[0:59:23] 123123 killed F/A-26B (G) with AIM-120C.
+[0:59:43] G killed F/A-26B (SIRIS7AK) with AIM-120C.
+[0:59:53] G has spawned.

@@ -17,9 +17,15 @@ class SocketService(QObject):
     def worker(self) -> SocketWorker:
         return self._worker
 
-    def connect(self) -> None:
+    def connect(self, auto_reconnect: bool = False) -> None:
+        """
+        Connect to socket server
+        
+        Args:
+            auto_reconnect: If True, automatically reconnect on disconnect
+        """
         if not self._worker.running:
-            self._worker.connect_socket()
+            self._worker.connect_socket(auto_reconnect=auto_reconnect)
 
     def is_connected(self) -> bool:
         return self._worker.running

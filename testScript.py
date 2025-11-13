@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import time
+from datetime import datetime
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence
@@ -23,18 +24,19 @@ S2MS = 1000
 MIN2MS = 60 * S2MS
 H2MS = 60 * MIN2MS
 
-SERVER_NAME = "Test Server"
+SERVER_NAME = "PvP Server-60min mapcycle"
 SERVER_PASSWORD = "2025"
 PUBLIC = True
 FULL_LOAD_KEYWORD = "$log_Tobiichi Eigetsu has connected."
-STATE_DURATION_MS = 6 * MIN2MS
+STATE_DURATION_MS = 60 * MIN2MS
 FULL_LOAD_TIMEOUT = 90  # 秒
 FLIGHTLOG_TIMEOUT = 15  # 秒
 COMMAND_DELAY_MS = 500
 
 LOG_DIR = Path(__file__).resolve().parent / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
-
+global round_number
+round_number = 0
 
 @dataclass(frozen=True)
 class MapConfig:
@@ -43,8 +45,8 @@ class MapConfig:
 
 
 FSM_MAPS: Dict[str, MapConfig] = {
-    "state1": MapConfig(campaign_id="2860956181", mapname="BVR Ocixem"),
-    "state2": MapConfig(campaign_id="2852088319", mapname="3V3 F-26"),
+    "state1": MapConfig(campaign_id="2860956181", mapname="BVR Ethi5"),
+    "state2": MapConfig(campaign_id="3355613749", mapname="MergeLarge"),
     "state3": MapConfig(campaign_id="2860956181", mapname="BVR Archipel"),
 }
 
@@ -79,12 +81,13 @@ def start(current_map: MapConfig) -> None:
     else:
         socket_service.send_command(f"sethost password {SERVER_PASSWORD}")
     _send_common_prefix(current_map)
-    socket_service.send_command("confighost")
+    socket_service.send_command("config")
     delay(8 * S2MS)
     socket_service.send_command("checkhost")
     delay(COMMAND_DELAY_MS)
     socket_service.send_command("host")
-    delay(COMMAND_DELAY_MS)
+    delay(1*MIN2MS)
+    socket_service.send_command("start")
 
 
 def restart(target_map: MapConfig) -> None:
@@ -92,30 +95,18 @@ def restart(target_map: MapConfig) -> None:
     _send_common_prefix(target_map)
     socket_service.send_command("restart")
     delay(COMMAND_DELAY_MS)
+    delay(1*MIN2MS)
+    socket_service.send_command("start")
 
 
-def _refresh_stage(timeout: int = 5) -> str:
-    previous = serverReplyProcess.stage
-    serverReplyProcess.request_states(["stage"])
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        current = serverReplyProcess.stage
-        if current and current != previous:
-            return current
-        delay(200)
-    return serverReplyProcess.stage
 
 
 def _wait_for_full_load(timeout: int = FULL_LOAD_TIMEOUT) -> bool:
-    start_index = len(serverReplyProcess.logs)
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        logs = _snapshot_logs(start_index)
-        if any(FULL_LOAD_KEYWORD in line for line in logs):
-            return True
-        start_index += len(logs)
-        delay(500)
-    return False
+    last_state = serverReplyProcess.lastState
+    if last_state == "LobbyReady":
+        return True
+    else:
+        return False
 
 
 def _snapshot_logs(start_index: int) -> List[str]:
@@ -150,7 +141,7 @@ def _dump_flightlog(state_name: str) -> Path:
         delay(500)
 
     flightlog = serverReplyProcess.flightlog or []
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     target = LOG_DIR / f"{state_name}_flightlog_{timestamp}.txt"
     with target.open("w", encoding="utf-8") as f:
         if not flightlog:
@@ -164,6 +155,7 @@ def _dump_flightlog(state_name: str) -> Path:
 
 
 def _run_state(state_name: str) -> None:
+    global round_number
     if state_name not in FSM_MAPS:
         LOGGER.warning("未知状态 %s，跳过。", state_name)
         return
@@ -171,15 +163,15 @@ def _run_state(state_name: str) -> None:
     config = FSM_MAPS[state_name]
     LOGGER.info("执行状态 %s", state_name)
 
-    stage = _refresh_stage()
-    if state_name == "state1" and stage == "1-Briefing":
+    if round_number == 0:
         start(config)
+        round_number += 1
     else:
         restart(config)
 
-    if not _wait_for_full_load():
-        LOGGER.warning("未检测到 FULL_LOAD，手动发送 start。")
-        socket_service.send_command("start")
+    # if not _wait_for_full_load():
+    #     LOGGER.warning("未检测到 FULL_LOAD，手动发送 start。")
+    #     socket_service.send_command("start")
 
     _wait_duration(state_name)
     _dump_flightlog(state_name)
@@ -200,7 +192,7 @@ def state3() -> None:
 def run(
     *,
     state_sequence: Sequence[str] = DEFAULT_SEQUENCE,
-    cycles: Optional[int] = 1,
+    cycles: Optional[int] = None,
 ) -> None:
     loop = 0
     while True:
